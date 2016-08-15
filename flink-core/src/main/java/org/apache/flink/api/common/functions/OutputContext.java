@@ -17,12 +17,11 @@
 
 package org.apache.flink.api.common.functions;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Collector;
 
 public interface OutputContext<OUT> extends Collector<OUT>{
 	void collect(OUT element);
 	<W> void sideCollect(W element);
-	//<W> TypeInformation<W> getSideOutputType();
-	//<W> TypeInformation setSideOutputType(TypeInformation<W> typeInformation);
+	void setTimeStamp(long timeStamp);
+	void emitWatermark(long watermarkts);
 }
