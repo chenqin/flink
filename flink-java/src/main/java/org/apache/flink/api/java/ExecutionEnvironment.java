@@ -1295,4 +1295,13 @@ public abstract class ExecutionEnvironment {
 	public static boolean areExplicitEnvironmentsAllowed() {
 		return contextEnvironmentFactory == null;
 	}
+
+	/**
+	 * set gobal side otuput type
+	 * @param type
+     */
+	public void setSideOutputType(TypeInformation<?> type){
+		this.registerType(type.getTypeClass());
+		this.config.setSideOutputType(type);
+	}
 }

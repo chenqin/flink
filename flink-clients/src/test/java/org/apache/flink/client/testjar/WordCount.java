@@ -21,6 +21,7 @@ package org.apache.flink.client.testjar;
 import org.apache.flink.api.java.aggregation.Aggregations;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.util.Collector;
 
 import org.apache.flink.api.java.DataSet;
@@ -43,7 +44,7 @@ public class WordCount {
 		
 		// set up the execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-		
+		env.setSideOutputType(TypeExtractor.getForClass(String.class));
 		// get input data
 		DataSet<String> text = getTextDataSet(env);
 		

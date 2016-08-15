@@ -20,6 +20,7 @@ package org.apache.flink.streaming.api.operators;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.api.common.state.State;
 import org.apache.flink.api.common.state.StateDescriptor;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -79,6 +80,8 @@ public abstract class AbstractStreamOperator<OUT>
 	private transient StreamConfig config;
 
 	protected transient Output<StreamRecord<OUT>> output;
+
+	protected transient Output<OutputContext<OUT>> outputcontext;
 
 	/** The runtime context for UDFs */
 	private transient StreamingRuntimeContext runtimeContext;
@@ -343,6 +346,11 @@ public abstract class AbstractStreamOperator<OUT>
 		public void collect(StreamRecord<OUT> record) {
 			numRecordsOut.inc();
 			output.collect(record);
+		}
+
+		public void sideCollect(StreamRecord element) {
+			numRecordsOut.inc();
+			output.sideCollect(element);
 		}
 
 		@Override

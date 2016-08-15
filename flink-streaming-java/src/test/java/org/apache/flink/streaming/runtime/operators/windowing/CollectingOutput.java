@@ -21,6 +21,7 @@ package org.apache.flink.streaming.runtime.operators.windowing;
 import org.apache.flink.streaming.api.operators.Output;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
+import scala.collection.immutable.Stream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,11 @@ public class CollectingOutput<T> implements Output<StreamRecord<T>> {
 	@Override
 	public void emitWatermark(Watermark mark) {
 		throw new UnsupportedOperationException("the output should not emit watermarks");
+	}
+
+	@Override
+	public void sideCollect(StreamRecord element) {
+
 	}
 
 	@Override

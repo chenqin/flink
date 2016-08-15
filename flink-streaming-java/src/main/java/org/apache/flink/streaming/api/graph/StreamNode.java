@@ -55,6 +55,7 @@ public class StreamNode implements Serializable {
 	private TypeSerializer<?> typeSerializerIn1;
 	private TypeSerializer<?> typeSerializerIn2;
 	private TypeSerializer<?> typeSerializerOut;
+	private TypeSerializer<?> typeSerializerSideOut;
 
 	private List<StreamEdge> inEdges = new ArrayList<StreamEdge>();
 	private List<StreamEdge> outEdges = new ArrayList<StreamEdge>();
@@ -189,8 +190,14 @@ public class StreamNode implements Serializable {
 		return typeSerializerOut;
 	}
 
+	public TypeSerializer<?> getTypeSerializerSideOut() { return typeSerializerSideOut; }
+
 	public void setSerializerOut(TypeSerializer<?> typeSerializerOut) {
 		this.typeSerializerOut = typeSerializerOut;
+	}
+
+	public void setSerializerSideOut(TypeSerializer<?> typeSerializerSideOut){
+		this.typeSerializerSideOut = typeSerializerSideOut;
 	}
 
 	public Class<? extends AbstractInvokable> getJobVertexClass() {

@@ -137,6 +137,11 @@ public class TwoInputStreamOperatorTestHarness<IN1, IN2, OUT> {
 		}
 
 		@Override
+		public void sideCollect(StreamRecord element) {
+
+		}
+
+		@Override
 		public void close() {
 			// ignore
 		}

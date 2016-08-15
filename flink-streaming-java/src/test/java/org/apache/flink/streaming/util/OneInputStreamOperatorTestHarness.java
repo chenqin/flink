@@ -288,6 +288,11 @@ public class OneInputStreamOperatorTestHarness<IN, OUT> {
 		}
 
 		@Override
+		public void sideCollect(StreamRecord element) {
+			//ignore
+		}
+
+		@Override
 		public void close() {
 			// ignore
 		}

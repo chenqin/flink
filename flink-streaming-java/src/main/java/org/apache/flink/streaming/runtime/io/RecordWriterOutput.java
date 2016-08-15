@@ -41,17 +41,20 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 
 	private StreamRecordWriter<SerializationDelegate<StreamElement>> recordWriter;
 	
-	private SerializationDelegate<StreamElement> serializationDelegate;
+	private SerializationDelegate<StreamElement> outSerializationDelegate;
 
-	
+	private boolean isSideOutput;
+
 	@SuppressWarnings("unchecked")
 	public RecordWriterOutput(
 			StreamRecordWriter<SerializationDelegate<StreamRecord<OUT>>> recordWriter,
-			TypeSerializer<OUT> outSerializer,
-			boolean enableWatermarkMultiplexing) {
+			TypeSerializer<?> outSerializer,
+			boolean enableWatermarkMultiplexing,
+			boolean isSideOutput) {
 
 		checkNotNull(recordWriter);
-		
+		this.isSideOutput = isSideOutput;
+
 		// generic hack: cast the writer to generic Object type so we can use it 
 		// with multiplexed records and watermarks
 		this.recordWriter = (StreamRecordWriter<SerializationDelegate<StreamElement>>) 
@@ -59,23 +62,24 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 
 		TypeSerializer<StreamElement> outRecordSerializer;
 		if (enableWatermarkMultiplexing) {
-			outRecordSerializer = new MultiplexingStreamRecordSerializer<OUT>(outSerializer);
+			outRecordSerializer = new MultiplexingStreamRecordSerializer<>(outSerializer);
 		} else {
 			outRecordSerializer = (TypeSerializer<StreamElement>)
-					(TypeSerializer<?>) new StreamRecordSerializer<OUT>(outSerializer);
+					(TypeSerializer<?>) new StreamRecordSerializer<>(outSerializer);
 		}
 
 		if (outSerializer != null) {
-			serializationDelegate = new SerializationDelegate<StreamElement>(outRecordSerializer);
+			outSerializationDelegate = new SerializationDelegate<StreamElement>(outRecordSerializer);
 		}
 	}
 
 	@Override
 	public void collect(StreamRecord<OUT> record) {
-		serializationDelegate.setInstance(record);
-
 		try {
-			recordWriter.emit(serializationDelegate);
+			if(!this.isSideOutput) {
+				outSerializationDelegate.setInstance(record);
+				recordWriter.emit(outSerializationDelegate);
+			}
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -83,11 +87,26 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 	}
 
 	@Override
+	public void sideCollect(StreamRecord element) {
+		try{
+			//hack, filter out exception message to single output type downstream
+			//abstractstreamoperator should contains more than one output
+			if(this.isSideOutput) {
+				outSerializationDelegate.setInstance(element);
+				recordWriter.emit(outSerializationDelegate);
+			}
+		}
+		catch (Exception e){
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+	@Override
 	public void emitWatermark(Watermark mark) {
-		serializationDelegate.setInstance(mark);
+		outSerializationDelegate.setInstance(mark);
 		
 		try {
-			recordWriter.broadcastEmit(serializationDelegate);
+			recordWriter.broadcastEmit(outSerializationDelegate);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);

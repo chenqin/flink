@@ -38,6 +38,7 @@ public class StreamEdge implements Serializable {
 	final private StreamNode sourceVertex;
 	final private StreamNode targetVertex;
 
+	private boolean isSideEdge;
 	/**
 	 * The type number of the input for co-tasks.
 	 */
@@ -50,6 +51,11 @@ public class StreamEdge implements Serializable {
 	private final List<String> selectedNames;
 	private StreamPartitioner<?> outputPartitioner;
 
+	public StreamEdge(StreamNode sourceVertex, StreamNode targetVertex, int typeNumber, StreamPartitioner<?> outputPartitioner){
+		this(sourceVertex, targetVertex, typeNumber, null, outputPartitioner);
+		this.isSideEdge = true;
+	}
+
 	public StreamEdge(StreamNode sourceVertex, StreamNode targetVertex, int typeNumber,
 			List<String> selectedNames, StreamPartitioner<?> outputPartitioner) {
 		this.sourceVertex = sourceVertex;
@@ -61,6 +67,8 @@ public class StreamEdge implements Serializable {
 		this.edgeId = sourceVertex + "_" + targetVertex + "_" + typeNumber + "_" + selectedNames
 				+ "_" + outputPartitioner;
 	}
+
+	public boolean isSideEdge() { return isSideEdge; }
 
 	public StreamNode getSourceVertex() {
 		return sourceVertex;
@@ -92,6 +100,10 @@ public class StreamEdge implements Serializable {
 	
 	public void setPartitioner(StreamPartitioner<?> partitioner) {
 		this.outputPartitioner = partitioner;
+	}
+
+	public void setSideEdge(boolean isSideEdge){
+		this.isSideEdge = isSideEdge;
 	}
 
 	@Override

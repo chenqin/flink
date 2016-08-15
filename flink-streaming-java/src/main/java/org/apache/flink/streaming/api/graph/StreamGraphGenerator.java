@@ -32,10 +32,12 @@ import org.apache.flink.streaming.api.transformations.SourceTransformation;
 import org.apache.flink.streaming.api.transformations.SplitTransformation;
 import org.apache.flink.streaming.api.transformations.StreamTransformation;
 import org.apache.flink.streaming.api.transformations.TwoInputTransformation;
+import org.apache.flink.streaming.api.transformations.SideOutputTransformation;
 import org.apache.flink.streaming.api.transformations.UnionTransformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -168,6 +170,8 @@ public class StreamGraphGenerator {
 			transformedIds = transformCoFeedback((CoFeedbackTransformation<?>) transform);
 		} else if (transform instanceof PartitionTransformation<?>) {
 			transformedIds = transformPartition((PartitionTransformation<?>) transform);
+		} else if(transform instanceof SideOutputTransformation<?>) {
+			transformedIds = transformSideOutput((SideOutputTransformation<?>) transform);
 		} else {
 			throw new IllegalStateException("Unknown transformation: " + transform);
 		}
@@ -278,6 +282,27 @@ public class StreamGraphGenerator {
 		return virtualResultIds;
 	}
 
+	private <T> Collection<Integer> transformSideOutput(SideOutputTransformation<T> sideOutputTransformation) {
+		StreamTransformation<T> input = sideOutputTransformation.getInput();
+		Collection<Integer> resultIds = transform(input);
+
+
+		// the recursive transform might have already transformed this
+		if (alreadyTransformed.containsKey(sideOutputTransformation)) {
+			return alreadyTransformed.get(sideOutputTransformation);
+		}
+
+		List<Integer> virtualResultIds = new ArrayList<>();
+
+		for (int inputId : resultIds) {
+			int virtualId = StreamTransformation.getNewNodeId();
+			streamGraph.addVirtualSelectNode(inputId, virtualId, Arrays.asList("~!@#$%^&*()_SIDEOUTPUT"));
+			virtualResultIds.add(virtualId);
+		}
+
+		return virtualResultIds;
+	}
+
 	/**
 	 * Transforms a {@code FeedbackTransformation}.
 	 *
@@ -318,9 +343,11 @@ public class StreamGraphGenerator {
 		StreamNode itSource = itSourceAndSink.f0;
 		StreamNode itSink = itSourceAndSink.f1;
 
+		TypeSerializer<?> sideSerializer = env.getConfig().getSideOutputType() != null ? env.getConfig().getSideOutputType().createSerializer(env.getConfig()) : null;
+
 		// We set the proper serializers for the sink/source
-		streamGraph.setSerializers(itSource.getId(), null, null, iterate.getOutputType().createSerializer(env.getConfig()));
-		streamGraph.setSerializers(itSink.getId(), iterate.getOutputType().createSerializer(env.getConfig()), null, null);
+		streamGraph.setSerializers(itSource.getId(), null, null, iterate.getOutputType().createSerializer(env.getConfig()), sideSerializer);
+		streamGraph.setSerializers(itSink.getId(), iterate.getOutputType().createSerializer(env.getConfig()), null, null, sideSerializer);
 
 		// also add the feedback source ID to the result IDs, so that downstream operators will
 		// add both as input
@@ -382,9 +409,10 @@ public class StreamGraphGenerator {
 		StreamNode itSource = itSourceAndSink.f0;
 		StreamNode itSink = itSourceAndSink.f1;
 
+		TypeSerializer<?> sideSerializer = env.getConfig().getSideOutputType() != null ? env.getConfig().getSideOutputType().createSerializer(env.getConfig()) : null;
 		// We set the proper serializers for the sink/source
-		streamGraph.setSerializers(itSource.getId(), null, null, coIterate.getOutputType().createSerializer(env.getConfig()));
-		streamGraph.setSerializers(itSink.getId(), coIterate.getOutputType().createSerializer(env.getConfig()), null, null);
+		streamGraph.setSerializers(itSource.getId(), null, null, coIterate.getOutputType().createSerializer(env.getConfig()), sideSerializer);
+		streamGraph.setSerializers(itSink.getId(), coIterate.getOutputType().createSerializer(env.getConfig()), null, null, sideSerializer);
 
 		Collection<Integer> resultIds = Collections.singleton(itSource.getId());
 

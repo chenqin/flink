@@ -332,6 +332,9 @@ public class StreamSourceOperatorTest {
 		}
 
 		@Override
+		public void sideCollect(StreamRecord element) {}
+
+		@Override
 		public void close() {}
 	}
 }

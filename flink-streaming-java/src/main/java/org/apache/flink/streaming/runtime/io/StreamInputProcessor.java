@@ -83,13 +83,13 @@ public class StreamInputProcessor<IN> {
 
 	private Counter numRecordsIn;
 
+
 	@SuppressWarnings("unchecked")
 	public StreamInputProcessor(InputGate[] inputGates, TypeSerializer<IN> inputSerializer,
 								EventListener<CheckpointBarrier> checkpointListener,
 								CheckpointingMode checkpointMode,
 								IOManager ioManager,
 								boolean enableWatermarkMultiplexing) throws IOException {
-
 		InputGate inputGate = InputGateUtil.createInputGate(inputGates);
 
 		if (checkpointMode == CheckpointingMode.EXACTLY_ONCE) {
@@ -150,7 +150,6 @@ public class StreamInputProcessor<IN> {
 
 				if (result.isFullRecord()) {
 					StreamElement recordOrWatermark = deserializationDelegate.getInstance();
-
 					if (recordOrWatermark.isWatermark()) {
 						long watermarkMillis = recordOrWatermark.asWatermark().getTimestamp();
 						if (watermarkMillis > watermarks[currentChannel]) {
@@ -170,6 +169,7 @@ public class StreamInputProcessor<IN> {
 					} else {
 						// now we can do the actual processing
 						StreamRecord<IN> record = recordOrWatermark.asRecord();
+
 						synchronized (lock) {
 							numRecordsIn.inc();
 							streamOperator.setKeyContextElement1(record);

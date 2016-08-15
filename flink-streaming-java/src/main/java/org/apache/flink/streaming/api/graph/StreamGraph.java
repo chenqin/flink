@@ -199,7 +199,9 @@ public class StreamGraph extends StreamingPlan {
 
 		TypeSerializer<OUT> outSerializer = outTypeInfo != null && !(outTypeInfo instanceof MissingTypeInfo) ? outTypeInfo.createSerializer(executionConfig) : null;
 
-		setSerializers(vertexID, inSerializer, null, outSerializer);
+		TypeSerializer<?> sideOutputSerializer = executionConfig.getSideOutputType() != null ? executionConfig.getSideOutputType().createSerializer(executionConfig) : null;
+
+		setSerializers(vertexID, inSerializer, null, outSerializer, sideOutputSerializer);
 
 		if (operatorObject instanceof OutputTypeConfigurable) {
 			@SuppressWarnings("unchecked")
@@ -231,8 +233,9 @@ public class StreamGraph extends StreamingPlan {
 
 		TypeSerializer<OUT> outSerializer = (outTypeInfo != null) && !(outTypeInfo instanceof MissingTypeInfo) ?
 				outTypeInfo.createSerializer(executionConfig) : null;
+		TypeSerializer<?> sideOutputSerializer = executionConfig.getSideOutputType() != null ? executionConfig.getSideOutputType().createSerializer(executionConfig) : null;
 
-		setSerializers(vertexID, in1TypeInfo.createSerializer(executionConfig), in2TypeInfo.createSerializer(executionConfig), outSerializer);
+		setSerializers(vertexID, in1TypeInfo.createSerializer(executionConfig), in2TypeInfo.createSerializer(executionConfig), outSerializer, sideOutputSerializer);
 
 		if (taskOperatorObject instanceof OutputTypeConfigurable) {
 			@SuppressWarnings("unchecked")
@@ -381,6 +384,10 @@ public class StreamGraph extends StreamingPlan {
 
 			StreamEdge edge = new StreamEdge(upstreamNode, downstreamNode, typeNumber, outputNames, partitioner);
 
+			if(outputNames.contains("~!@#$%^&*()_SIDEOUTPUT")){
+				edge.setSideEdge(true);
+			}
+
 			getStreamNode(edge.getSourceId()).addOutEdge(edge);
 			getStreamNode(edge.getTargetId()).addInEdge(edge);
 		}
@@ -426,11 +433,12 @@ public class StreamGraph extends StreamingPlan {
 		}
 	}
 
-	public void setSerializers(Integer vertexID, TypeSerializer<?> in1, TypeSerializer<?> in2, TypeSerializer<?> out) {
+	public void setSerializers(Integer vertexID, TypeSerializer<?> in1, TypeSerializer<?> in2, TypeSerializer<?> out, TypeSerializer<?> sideOut) {
 		StreamNode vertex = getStreamNode(vertexID);
 		vertex.setSerializerIn1(in1);
 		vertex.setSerializerIn2(in2);
 		vertex.setSerializerOut(out);
+		vertex.setSerializerSideOut(sideOut);
 	}
 
 	public void setSerializersFrom(Integer from, Integer to) {

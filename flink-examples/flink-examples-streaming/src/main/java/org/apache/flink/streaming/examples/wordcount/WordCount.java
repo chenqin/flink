@@ -19,10 +19,12 @@ package org.apache.flink.streaming.examples.wordcount;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.examples.java.wordcount.util.WordCountData;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.operators.TimestampedCollector;
 import org.apache.flink.util.Collector;
 
 /**
@@ -63,6 +65,10 @@ public class WordCount {
 		// make parameters available in the web interface
 		env.getConfig().setGlobalJobParameters(params);
 
+		env.disableOperatorChaining();
+
+		env.getConfig().setSideOutputType(TypeExtractor.getForClass(String.class));
+
 		// get input data
 		DataStream<String> text;
 		if (params.has("input")) {
@@ -75,19 +81,8 @@ public class WordCount {
 			text = env.fromElements(WordCountData.WORDS);
 		}
 
-		DataStream<Tuple2<String, Integer>> counts =
-		// split up the lines in pairs (2-tuples) containing: (word,1)
-		text.flatMap(new Tokenizer())
-		// group by the tuple field "0" and sum up tuple field "1"
-				.keyBy(0).sum(1);
-
-		// emit result
-		if (params.has("output")) {
-			counts.writeAsText(params.get("output"));
-		} else {
-			System.out.println("Printing result to stdout. Use --output to specify output path.");
-			counts.print();
-		}
+		text.flatMap(new Tokenizer()).sideStream().print();
+		text.print();
 
 		// execute program
 		env.execute("Streaming WordCount");
@@ -118,6 +113,8 @@ public class WordCount {
 					out.collect(new Tuple2<String, Integer>(token, 1));
 				}
 			}
+			TimestampedCollector tc = (TimestampedCollector) out;
+			tc.sideCollect("olleh");
 		}
 	}
 

@@ -96,6 +96,11 @@ public class StreamIterationTail<IN> extends OneInputStreamTask<IN, IN> {
 		}
 
 		@Override
+		public void sideCollect(StreamRecord element) {
+			throw new UnsupportedOperationException("side collect is yet to support in interative stream");
+		}
+
+		@Override
 		public void collect(StreamRecord<IN> record) {
 			try {
 				if (shouldWait) {

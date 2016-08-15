@@ -66,7 +66,7 @@ public class OperatorChain<OUT> {
 	private final RecordWriterOutput<?>[] streamOutputs;
 	
 	private final Output<StreamRecord<OUT>> chainEntryPoint;
-	
+
 
 	public OperatorChain(StreamTask<OUT, ?> containingTask,
 							StreamOperator<OUT> headOperator,
@@ -89,22 +89,25 @@ public class OperatorChain<OUT> {
 		// from here on, we need to make sure that the output writers are shut down again on failure
 		boolean success = false;
 		try {
+
 			for (int i = 0; i < outEdgesInOrder.size(); i++) {
 				StreamEdge outEdge = outEdgesInOrder.get(i);
-				
+				//hack, use stream edge to carry edge type info,
+				//RecordWriterOutput should do translation between opeator collect/sidecollet action and collect
+				//accordiningly
 				RecordWriterOutput<?> streamOutput = createStreamOutput(
 						outEdge, chainedConfigs.get(outEdge.getSourceId()), i,
-						containingTask.getEnvironment(), enableTimestamps, reporter, containingTask.getName());
+						containingTask.getEnvironment(), enableTimestamps, reporter, containingTask.getName(), outEdge.isSideEdge());
 	
 				this.streamOutputs[i] = streamOutput;
 				streamOutputMap.put(outEdge, streamOutput);
 			}
-	
+
 			// we create the chain of operators and grab the collector that leads into the chain
 			List<StreamOperator<?>> allOps = new ArrayList<>(chainedConfigs.size());
 			this.chainEntryPoint = createOutputCollector(containingTask, configuration,
 					chainedConfigs, userCodeClassloader, streamOutputMap, allOps);
-			
+
 			this.allOperators = allOps.toArray(new StreamOperator<?>[allOps.size() + 1]);
 			
 			// add the head operator to the end of the list
@@ -289,9 +292,11 @@ public class OperatorChain<OUT> {
 	private static <T> RecordWriterOutput<T> createStreamOutput(
 			StreamEdge edge, StreamConfig upStreamConfig, int outputIndex,
 			Environment taskEnvironment, boolean withTimestamps,
-			AccumulatorRegistry.Reporter reporter, String taskName)
+			AccumulatorRegistry.Reporter reporter, String taskName, boolean isSideOutput)
 	{
-		TypeSerializer<T> outSerializer = upStreamConfig.getTypeSerializerOut(taskEnvironment.getUserClassLoader());
+		TypeSerializer<?> outSerializer = isSideOutput ?
+		outSerializer = upStreamConfig.getTypeSerializerSideOut(taskEnvironment.getUserClassLoader()) :
+			upStreamConfig.getTypeSerializerOut(taskEnvironment.getUserClassLoader());
 
 		@SuppressWarnings("unchecked")
 		StreamPartitioner<T> outputPartitioner = (StreamPartitioner<T>) edge.getPartitioner();
@@ -304,9 +309,10 @@ public class OperatorChain<OUT> {
 				new StreamRecordWriter<>(bufferWriter, outputPartitioner, upStreamConfig.getBufferTimeout());
 		output.setReporter(reporter);
 		output.setMetricGroup(taskEnvironment.getMetricGroup().getIOMetricGroup());
-		
-		return new RecordWriterOutput<T>(output, outSerializer, withTimestamps);
+
+		return new RecordWriterOutput<T>(output, outSerializer, withTimestamps, isSideOutput);
 	}
+
 	
 	// ------------------------------------------------------------------------
 	//  Collectors for output chaining
@@ -332,6 +338,12 @@ public class OperatorChain<OUT> {
 			catch (Exception e) {
 				throw new ExceptionInChainedOperatorException(e);
 			}
+		}
+
+		@Override
+		public void sideCollect(StreamRecord element) {
+			numRecordsIn.inc();
+			LOG.debug("side collect an emlement {}", element);
 		}
 
 		@Override
@@ -391,6 +403,11 @@ public class OperatorChain<OUT> {
 			for (Output<StreamRecord<T>> output : outputs) {
 				output.emitWatermark(mark);
 			}
+		}
+
+		@Override
+		public void sideCollect(StreamRecord element) {
+			throw new UnsupportedOperationException("side output should not be broadcasted!");
 		}
 
 		@Override

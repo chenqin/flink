@@ -44,6 +44,11 @@ public class MockOutput<T> implements Output<StreamRecord<T>> {
 	}
 
 	@Override
+	public void sideCollect(StreamRecord element) {
+
+	}
+
+	@Override
 	public void close() {
 	}
 }

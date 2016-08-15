@@ -63,6 +63,7 @@ public class StreamConfig implements Serializable {
 	private static final String TYPE_SERIALIZER_IN_1 = "typeSerializer_in_1";
 	private static final String TYPE_SERIALIZER_IN_2 = "typeSerializer_in_2";
 	private static final String TYPE_SERIALIZER_OUT_1 = "typeSerializer_out";
+	private static final String TYPE_SERIALIZER_OUT_2 = "typeSerializer_sideout";
 	private static final String ITERATON_WAIT = "iterationWait";
 	private static final String NONCHAINED_OUTPUTS = "nonChainedOutputs";
 	private static final String EDGES_IN_ORDER = "edgesInOrder";
@@ -77,6 +78,7 @@ public class StreamConfig implements Serializable {
 	private static final String STATE_KEY_SERIALIZER = "statekeyser";
 	
 	private static final String TIME_CHARACTERISTIC = "timechar";
+
 	
 	// ------------------------------------------------------------------------
 	//  Default Values
@@ -84,7 +86,6 @@ public class StreamConfig implements Serializable {
 	
 	private static final long DEFAULT_TIMEOUT = 100;
 	private static final CheckpointingMode DEFAULT_CHECKPOINTING_MODE = CheckpointingMode.EXACTLY_ONCE;
-	
 	
 	// ------------------------------------------------------------------------
 	//  Config
@@ -136,6 +137,10 @@ public class StreamConfig implements Serializable {
 	public void setTypeSerializerOut(TypeSerializer<?> serializer) {
 		setTypeSerializer(TYPE_SERIALIZER_OUT_1, serializer);
 	}
+
+	public void setTypeSerializerSideOut(TypeSerializer<?> serializer) {
+		setTypeSerializer(TYPE_SERIALIZER_OUT_2, serializer);
+	}
 	
 	public <T> TypeSerializer<T> getTypeSerializerIn1(ClassLoader cl) {
 		try {
@@ -156,6 +161,14 @@ public class StreamConfig implements Serializable {
 	public <T> TypeSerializer<T> getTypeSerializerOut(ClassLoader cl) {
 		try {
 			return InstantiationUtil.readObjectFromConfig(this.config, TYPE_SERIALIZER_OUT_1, cl);
+		} catch (Exception e) {
+			throw new StreamTaskException("Could not instantiate serializer.", e);
+		}
+	}
+
+	public <T> TypeSerializer<T> getTypeSerializerSideOut(ClassLoader cl) {
+		try {
+			return InstantiationUtil.readObjectFromConfig(this.config, TYPE_SERIALIZER_OUT_2, cl);
 		} catch (Exception e) {
 			throw new StreamTaskException("Could not instantiate serializer.", e);
 		}

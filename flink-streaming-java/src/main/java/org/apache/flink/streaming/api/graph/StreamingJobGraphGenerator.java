@@ -314,6 +314,7 @@ public class StreamingJobGraphGenerator {
 		config.setTypeSerializerIn1(vertex.getTypeSerializerIn1());
 		config.setTypeSerializerIn2(vertex.getTypeSerializerIn2());
 		config.setTypeSerializerOut(vertex.getTypeSerializerOut());
+		config.setTypeSerializerSideOut(vertex.getTypeSerializerSideOut());
 
 		config.setStreamOperator(vertex.getOperator());
 		config.setOutputSelectors(vertex.getOutputSelectors());

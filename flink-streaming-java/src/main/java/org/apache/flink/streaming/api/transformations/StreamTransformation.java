@@ -164,6 +164,8 @@ public abstract class StreamTransformation<T> {
 		return name;
 	}
 
+	public StreamTransformation getInput() { return null; }
+
 	/**
 	 * Returns the parallelism of this {@code StreamTransformation}
 	 */

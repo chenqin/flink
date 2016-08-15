@@ -22,6 +22,7 @@ import com.esotericsoftware.kryo.Serializer;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.Public;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Preconditions;
 
 
@@ -134,6 +135,8 @@ public class ExecutionConfig implements Serializable {
 	private LinkedHashSet<Class<?>> registeredKryoTypes = new LinkedHashSet<>();
 
 	private LinkedHashSet<Class<?>> registeredPojoTypes = new LinkedHashSet<>();
+
+	private TypeInformation<?> sideOutputType = null;
 
 	// --------------------------------------------------------------------------------------------
 
@@ -696,6 +699,12 @@ public class ExecutionConfig implements Serializable {
 			return false;
 		}
 	}
+
+	public void setSideOutputType(TypeInformation<?> outputType){
+		this.sideOutputType = outputType;
+	}
+
+	public TypeInformation<?> getSideOutputType(){ return sideOutputType;}
 
 	@Override
 	public int hashCode() {

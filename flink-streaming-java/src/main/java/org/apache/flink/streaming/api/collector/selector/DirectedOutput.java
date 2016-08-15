@@ -100,6 +100,8 @@ public class DirectedOutput<OUT> implements Output<StreamRecord<OUT>> {
 		}
 	}
 
+
+
 	protected Set<Output<StreamRecord<OUT>>> selectOutputs(StreamRecord<OUT> record)  {
 		Set<Output<StreamRecord<OUT>>> selectedOutputs = new HashSet<>(selectAllOutputs.length);
 		Collections.addAll(selectedOutputs, selectAllOutputs);
@@ -125,6 +127,11 @@ public class DirectedOutput<OUT> implements Output<StreamRecord<OUT>> {
 		for (Output<StreamRecord<OUT>> out : selectedOutputs) {
 			out.collect(record);
 		}
+	}
+
+	@Override
+	public void sideCollect(StreamRecord element) {
+
 	}
 
 	@Override

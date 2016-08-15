@@ -57,4 +57,8 @@ public class DataStreamSource<T> extends SingleOutputStreamOperator<T> {
 			return (DataStreamSource<T>) super.setParallelism(parallelism);
 		}
 	}
+
+	public DataStream sideStream(){
+		return new SideOutputStream<>(this);
+	}
 }

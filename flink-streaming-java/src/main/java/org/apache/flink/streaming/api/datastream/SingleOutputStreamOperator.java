@@ -304,4 +304,12 @@ public class SingleOutputStreamOperator<T> extends DataStream<T> {
 		transformation.setSlotSharingGroup(slotSharingGroup);
 		return this;
 	}
+
+	/**
+	 * hack, hide type info
+	 * @return
+	 */
+	public <W> DataStream<W> sideStream(){
+		return new SideOutputStream<W>(this);
+	}
 }
