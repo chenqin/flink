@@ -19,6 +19,7 @@ package org.apache.flink.streaming.api.operators;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
@@ -29,7 +30,7 @@ public class StreamFlatMap<IN, OUT>
 
 	private static final long serialVersionUID = 1L;
 
-	private transient TimestampedCollector<OUT> collector;
+	private transient OutputContext<OUT> contex;
 
 	public StreamFlatMap(FlatMapFunction<IN, OUT> flatMapper) {
 		super(flatMapper);
@@ -39,17 +40,17 @@ public class StreamFlatMap<IN, OUT>
 	@Override
 	public void open() throws Exception {
 		super.open();
-		collector = new TimestampedCollector<OUT>(output);
+		contex = new TimestampedOutputContext(output);
 	}
 
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
-		collector.setTimestamp(element);
-		userFunction.flatMap(element.getValue(), collector);
+		contex.setTimeStamp(element.hasTimestamp()? element.getTimestamp() : -1l);
+		userFunction.flatMap(element.getValue(), contex);
 	}
 
 	@Override
 	public void processWatermark(Watermark mark) throws Exception {
-		output.emitWatermark(mark);
+		contex.emitWatermark(mark.getTimestamp());
 	}
 }

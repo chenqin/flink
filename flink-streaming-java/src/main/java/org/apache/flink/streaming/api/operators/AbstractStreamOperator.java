@@ -81,8 +81,6 @@ public abstract class AbstractStreamOperator<OUT>
 
 	protected transient Output<StreamRecord<OUT>> output;
 
-	protected transient Output<OutputContext<OUT>> outputcontext;
-
 	/** The runtime context for UDFs */
 	private transient StreamingRuntimeContext runtimeContext;
 
@@ -327,6 +325,7 @@ public abstract class AbstractStreamOperator<OUT>
 	public final ChainingStrategy getChainingStrategy() {
 		return chainingStrategy;
 	}
+
 
 	public class CountingOutput implements Output<StreamRecord<OUT>> {
 		private final Output<StreamRecord<OUT>> output;
