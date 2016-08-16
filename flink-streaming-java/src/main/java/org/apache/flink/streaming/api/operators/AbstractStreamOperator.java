@@ -20,7 +20,6 @@ package org.apache.flink.streaming.api.operators;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.api.common.state.State;
 import org.apache.flink.api.common.state.StateDescriptor;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -80,6 +79,7 @@ public abstract class AbstractStreamOperator<OUT>
 	private transient StreamConfig config;
 
 	protected transient Output<StreamRecord<OUT>> output;
+	protected transient Output<StreamRecord<Object>> sideOutput;
 
 	/** The runtime context for UDFs */
 	private transient StreamingRuntimeContext runtimeContext;
@@ -100,13 +100,14 @@ public abstract class AbstractStreamOperator<OUT>
 	// ------------------------------------------------------------------------
 
 	@Override
-	public void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<OUT>> output) {
+	public void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<OUT>> output, Output<StreamRecord<Object>> sideOutput) {
 		this.container = containingTask;
 		this.config = config;
 		String operatorName = containingTask.getEnvironment().getTaskInfo().getTaskName().split("->")[config.getChainIndex()].trim();
 		
 		this.metrics = container.getEnvironment().getMetricGroup().addOperator(operatorName);
-		this.output = new CountingOutput(output, this.metrics.counter("numRecordsOut"));
+		this.output = new CountingOutput<OUT>(output, this.metrics.counter("numRecordsOut"));
+		this.sideOutput = new CountingOutput<Object>(sideOutput, this.metrics.counter("numSideRecordsOut"));
 		this.runtimeContext = new StreamingRuntimeContext(this, container.getEnvironment(), container.getAccumulatorMap());
 
 		stateKeySelector1 = config.getStatePartitioner(0, getUserCodeClassloader());
@@ -327,11 +328,11 @@ public abstract class AbstractStreamOperator<OUT>
 	}
 
 
-	public class CountingOutput implements Output<StreamRecord<OUT>> {
-		private final Output<StreamRecord<OUT>> output;
+	public class CountingOutput<T> implements Output<StreamRecord<T>> {
+		private final Output<StreamRecord<T>> output;
 		private final Counter numRecordsOut;
 
-		public CountingOutput(Output<StreamRecord<OUT>> output, Counter counter) {
+		public CountingOutput(Output<StreamRecord<T>> output, Counter counter) {
 			this.output = output;
 			this.numRecordsOut = counter;
 		}
@@ -342,14 +343,9 @@ public abstract class AbstractStreamOperator<OUT>
 		}
 
 		@Override
-		public void collect(StreamRecord<OUT> record) {
+		public void collect(StreamRecord<T> record) {
 			numRecordsOut.inc();
 			output.collect(record);
-		}
-
-		public void sideCollect(StreamRecord element) {
-			numRecordsOut.inc();
-			output.sideCollect(element);
 		}
 
 		@Override

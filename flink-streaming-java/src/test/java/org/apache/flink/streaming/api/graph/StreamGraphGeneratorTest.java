@@ -269,7 +269,7 @@ public class StreamGraphGeneratorTest {
 		public void processWatermark2(Watermark mark) throws Exception {}
 
 		@Override
-		public void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<Integer>> output) {}
+		public void setup(StreamTask<?, ?> containingTask, StreamConfig config, Output<StreamRecord<Integer>> output, Output<StreamRecord<Object>> sideOutput) {}
 	}
 
 	private static class OutputTypeConfigurableOperationWithOneInput

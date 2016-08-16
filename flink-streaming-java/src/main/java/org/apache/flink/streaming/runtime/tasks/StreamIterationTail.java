@@ -58,7 +58,7 @@ public class StreamIterationTail<IN> extends OneInputStreamTask<IN, IN> {
 		LOG.info("Iteration tail {} acquired feedback queue {}", getName(), brokerID);
 		
 		this.headOperator = new RecordPusher<>();
-		this.headOperator.setup(this, getConfiguration(), new IterationTailOutput<>(dataChannel, iterationWaitTime));
+		this.headOperator.setup(this, getConfiguration(), new IterationTailOutput<>(dataChannel, iterationWaitTime), null);
 	}
 
 	private static class RecordPusher<IN> extends AbstractStreamOperator<IN> implements OneInputStreamOperator<IN, IN> {
@@ -93,11 +93,6 @@ public class StreamIterationTail<IN> extends OneInputStreamTask<IN, IN> {
 
 		@Override
 		public void emitWatermark(Watermark mark) {
-		}
-
-		@Override
-		public void sideCollect(StreamRecord element) {
-			throw new UnsupportedOperationException("side collect is yet to support in interative stream");
 		}
 
 		@Override

@@ -64,10 +64,6 @@ public class CollectingOutput<T> implements Output<StreamRecord<T>> {
 		throw new UnsupportedOperationException("the output should not emit watermarks");
 	}
 
-	@Override
-	public void sideCollect(StreamRecord element) {
-
-	}
 
 	@Override
 	public void collect(StreamRecord<T> record) {

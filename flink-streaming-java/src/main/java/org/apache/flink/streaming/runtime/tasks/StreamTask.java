@@ -225,7 +225,7 @@ public abstract class StreamTask<OUT, Operator extends StreamOperator<OUT>>
 						getEnvironment().getAccumulatorRegistry().getReadWriteReporter());
 
 			if (headOperator != null) {
-				headOperator.setup(this, configuration, operatorChain.getChainEntryPoint());
+				headOperator.setup(this, configuration, operatorChain.getChainEntryPoint(), operatorChain.getChainSideEntryPoint());
 			}
 
 			getEnvironment().getMetricGroup().gauge("lastCheckpointSize", new Gauge<Long>() {

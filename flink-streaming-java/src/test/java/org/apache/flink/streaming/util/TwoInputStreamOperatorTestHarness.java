@@ -73,7 +73,7 @@ public class TwoInputStreamOperatorTestHarness<IN1, IN2, OUT> {
 		when(mockTask.getEnvironment()).thenReturn(env);
 		when(mockTask.getExecutionConfig()).thenReturn(executionConfig);
 
-		operator.setup(mockTask, new StreamConfig(new Configuration()), new MockOutput());
+		operator.setup(mockTask, new StreamConfig(new Configuration()), new MockOutput(), null);
 	}
 
 	/**
@@ -134,11 +134,6 @@ public class TwoInputStreamOperatorTestHarness<IN1, IN2, OUT> {
 			}
 			outputList.add(new StreamRecord<>(outputSerializer.copy(element.getValue()),
 					element.getTimestamp()));
-		}
-
-		@Override
-		public void sideCollect(StreamRecord element) {
-
 		}
 
 		@Override

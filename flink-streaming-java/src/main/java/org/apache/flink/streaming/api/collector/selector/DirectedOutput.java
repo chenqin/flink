@@ -130,11 +130,6 @@ public class DirectedOutput<OUT> implements Output<StreamRecord<OUT>> {
 	}
 
 	@Override
-	public void sideCollect(StreamRecord element) {
-
-	}
-
-	@Override
 	public void close() {
 		for (Output<StreamRecord<OUT>> out : allOutputs) {
 			out.close();

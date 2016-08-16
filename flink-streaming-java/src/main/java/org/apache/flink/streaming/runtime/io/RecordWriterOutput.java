@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.runtime.event.AbstractEvent;
 import org.apache.flink.runtime.io.network.api.writer.RecordWriter;
 import org.apache.flink.runtime.plugable.SerializationDelegate;
@@ -42,6 +43,7 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 	private StreamRecordWriter<SerializationDelegate<StreamElement>> recordWriter;
 	
 	private SerializationDelegate<StreamElement> outSerializationDelegate;
+	private TypeSerializer<?> outSerializer;
 
 	private boolean isSideOutput;
 
@@ -69,6 +71,7 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 		}
 
 		if (outSerializer != null) {
+			this.outSerializer = outSerializer;
 			outSerializationDelegate = new SerializationDelegate<StreamElement>(outRecordSerializer);
 		}
 	}
@@ -76,27 +79,10 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 	@Override
 	public void collect(StreamRecord<OUT> record) {
 		try {
-			if(!this.isSideOutput) {
-				outSerializationDelegate.setInstance(record);
-				recordWriter.emit(outSerializationDelegate);
-			}
+			outSerializationDelegate.setInstance(record);
+			recordWriter.emit(outSerializationDelegate);
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-	}
-
-	@Override
-	public void sideCollect(StreamRecord element) {
-		try{
-			//hack, filter out exception message to single output type downstream
-			//abstractstreamoperator should contains more than one output
-			if(this.isSideOutput) {
-				outSerializationDelegate.setInstance(element);
-				recordWriter.emit(outSerializationDelegate);
-			}
-		}
-		catch (Exception e){
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}

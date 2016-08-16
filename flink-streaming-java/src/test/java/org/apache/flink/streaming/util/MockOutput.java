@@ -43,10 +43,6 @@ public class MockOutput<T> implements Output<StreamRecord<T>> {
 		throw new RuntimeException("THIS MUST BE IMPLEMENTED");
 	}
 
-	@Override
-	public void sideCollect(StreamRecord element) {
-
-	}
 
 	@Override
 	public void close() {
