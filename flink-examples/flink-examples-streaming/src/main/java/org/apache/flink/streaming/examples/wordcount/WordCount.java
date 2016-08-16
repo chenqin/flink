@@ -82,8 +82,8 @@ public class WordCount {
 			text = env.fromElements(WordCountData.WORDS);
 		}
 
-		text.flatMap(new Tokenizer()).sideStream().print();
-		text.print();
+		DataStream<String> stream = text.flatMap(new Tokenizer()).sideStream();
+		stream.print();
 
 		// execute program
 		env.execute("Streaming WordCount");
