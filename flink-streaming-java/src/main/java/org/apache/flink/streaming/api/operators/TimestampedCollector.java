@@ -33,7 +33,7 @@ import org.apache.flink.util.Collector;
  * @param <T> The type of the elements that can be emitted.
  */
 @Internal
-public class TimestampedCollector<T> implements Collector<T>{
+public class TimestampedCollector<T> implements Collector<T>, SideCollector<Object> {
 	
 	private final Output<StreamRecord<T>> output;
 
@@ -46,6 +46,17 @@ public class TimestampedCollector<T> implements Collector<T>{
 	public TimestampedCollector(Output<StreamRecord<T>> output) {
 		this.output = output;
 		this.reuse = new StreamRecord<T>(null);
+	}
+
+	/**
+	 * hack, use generic to avoid type parameter changes everywhere
+	 * userFunction should contains a processingContext which impl
+	 * Collect(T out) and sideCollect(S sideOut)
+	 * @param record
+	 */
+	@Override
+	public void sideCollect(Object record) {
+		output.sideCollect(reuse.replace(record));
 	}
 
 	@Override

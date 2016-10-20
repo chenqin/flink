@@ -272,7 +272,7 @@ public class StreamSourceOperatorTest {
 			}
 		}).when(mockTask).getCurrentProcessingTime();
 
-		operator.setup(mockTask, cfg, (Output<StreamRecord<T>>) mock(Output.class), null);
+		operator.setup(mockTask, cfg, (Output<StreamRecord<T>>) mock(Output.class));
 	}
 
 	// ------------------------------------------------------------------------
@@ -331,6 +331,8 @@ public class StreamSourceOperatorTest {
 			list.add(record);
 		}
 
+		@Override
+		public void sideCollect(StreamRecord element) {}
 
 		@Override
 		public void close() {}

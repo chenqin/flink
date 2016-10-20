@@ -24,8 +24,8 @@ import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.examples.java.wordcount.util.WordCountData;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.operators.TimestampedCollector;
 import org.apache.flink.util.Collector;
 
 /**
@@ -79,11 +79,10 @@ public class WordCount {
 			System.out.println("Executing WordCount example with default input data set.");
 			System.out.println("Use --input to specify file input.");
 			// get default test text data
-			text = env.fromElements("a");
+			text = env.fromElements(WordCountData.WORDS);
 		}
 
-		SingleOutputStreamOperator stream = text.flatMap(new Tokenizer());
-		stream.sideStream().print();
+		DataStream<String> stream = text.flatMap(new Tokenizer()).sideStream();
 		stream.print();
 
 		// execute program

@@ -40,7 +40,7 @@ public class StreamFlatMap<IN, OUT>
 	@Override
 	public void open() throws Exception {
 		super.open();
-		contex = new TimestampedOutputContext<OUT>(output, sideOutput);
+		contex = new TimestampedOutputContext(output);
 	}
 
 	@Override

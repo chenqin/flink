@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -68,7 +67,6 @@ public class OperatorChain<OUT> {
 	
 	private final Output<StreamRecord<OUT>> chainEntryPoint;
 
-	private final Output<StreamRecord<Object>> chainSideEntryPoint;
 
 	public OperatorChain(StreamTask<OUT, ?> containingTask,
 							StreamOperator<OUT> headOperator,
@@ -86,7 +84,6 @@ public class OperatorChain<OUT> {
 		// we iterate through all the out edges from this job vertex and create a stream output
 		List<StreamEdge> outEdgesInOrder = configuration.getOutEdgesInOrder(userCodeClassloader);
 		Map<StreamEdge, RecordWriterOutput<?>> streamOutputMap = new HashMap<>(outEdgesInOrder.size());
-		Map<StreamEdge, RecordWriterOutput<?>> sideStreamOutputMap = new HashMap<>(outEdgesInOrder.size());
 		this.streamOutputs = new RecordWriterOutput<?>[outEdgesInOrder.size()];
 		
 		// from here on, we need to make sure that the output writers are shut down again on failure
@@ -103,10 +100,6 @@ public class OperatorChain<OUT> {
 						containingTask.getEnvironment(), enableTimestamps, reporter, containingTask.getName(), outEdge.isSideEdge());
 	
 				this.streamOutputs[i] = streamOutput;
-
-				if(outEdge.isSideEdge()){
-					sideStreamOutputMap.put(outEdge, streamOutput);
-				}
 				streamOutputMap.put(outEdge, streamOutput);
 			}
 
@@ -114,9 +107,6 @@ public class OperatorChain<OUT> {
 			List<StreamOperator<?>> allOps = new ArrayList<>(chainedConfigs.size());
 			this.chainEntryPoint = createOutputCollector(containingTask, configuration,
 					chainedConfigs, userCodeClassloader, streamOutputMap, allOps);
-
-			this.chainSideEntryPoint = createOutputCollector(containingTask, configuration,
-				chainedConfigs, userCodeClassloader, sideStreamOutputMap, allOps);
 
 			this.allOperators = allOps.toArray(new StreamOperator<?>[allOps.size() + 1]);
 			
@@ -158,10 +148,6 @@ public class OperatorChain<OUT> {
 
 	public Output<StreamRecord<OUT>> getChainEntryPoint() {
 		return chainEntryPoint;
-	}
-
-	public Output<StreamRecord<Object>> getChainSideEntryPoint() {
-		return chainSideEntryPoint;
 	}
 
 	/**
@@ -284,25 +270,13 @@ public class OperatorChain<OUT> {
 			Map<StreamEdge, RecordWriterOutput<?>> streamOutputs,
 			List<StreamOperator<?>> allOperators)
 	{
-		Map<StreamEdge, RecordWriterOutput<?>> sideStreamOutputs = new HashedMap();
-		Map<StreamEdge, RecordWriterOutput<?>> mainStreamOutputs = new HashedMap();
-		for(Map.Entry<StreamEdge, RecordWriterOutput<?>> entry : streamOutputs.entrySet()){
-			if(entry.getKey().isSideEdge()){
-				sideStreamOutputs.put(entry.getKey(), entry.getValue());
-			}else{
-				mainStreamOutputs.put(entry.getKey(), entry.getValue());
-			}
-		}
 		// create the output that the operator writes to first. this may recursively create more operators
 		Output<StreamRecord<OUT>> output = createOutputCollector(
-			containingTask, operatorConfig, chainedConfigs, userCodeClassloader, mainStreamOutputs, allOperators);
-
-		Output<StreamRecord<Object>> sideOutput = createOutputCollector(
-			containingTask, operatorConfig, chainedConfigs, userCodeClassloader, sideStreamOutputs, allOperators);
+				containingTask, operatorConfig, chainedConfigs, userCodeClassloader, streamOutputs, allOperators);
 
 		// now create the operator and give it the output collector to write its output to
 		OneInputStreamOperator<IN, OUT> chainedOperator = operatorConfig.getStreamOperator(userCodeClassloader);
-		chainedOperator.setup(containingTask, operatorConfig, output, sideOutput);
+		chainedOperator.setup(containingTask, operatorConfig, output);
 
 		allOperators.add(chainedOperator);
 
@@ -367,6 +341,12 @@ public class OperatorChain<OUT> {
 		}
 
 		@Override
+		public void sideCollect(StreamRecord element) {
+			numRecordsIn.inc();
+			LOG.debug("side collect an emlement {}", element);
+		}
+
+		@Override
 		public void emitWatermark(Watermark mark) {
 			try {
 				operator.processWatermark(mark);
@@ -423,6 +403,11 @@ public class OperatorChain<OUT> {
 			for (Output<StreamRecord<T>> output : outputs) {
 				output.emitWatermark(mark);
 			}
+		}
+
+		@Override
+		public void sideCollect(StreamRecord element) {
+			throw new UnsupportedOperationException("side output should not be broadcasted!");
 		}
 
 		@Override

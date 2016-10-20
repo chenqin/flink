@@ -185,16 +185,16 @@ public class OneInputStreamOperatorTestHarness<IN, OUT> {
 
 	/**
 	 * Calls
-	 * {@link org.apache.flink.streaming.api.operators.StreamOperator#setup(StreamTask, StreamConfig, Output, Output)} ()}
+	 * {@link org.apache.flink.streaming.api.operators.StreamOperator#setup(StreamTask, StreamConfig, Output)} ()}
 	 */
 	public void setup() throws Exception {
-		operator.setup(mockTask, config, new MockOutput(), null);
+		operator.setup(mockTask, config, new MockOutput());
 		setupCalled = true;
 	}
 
 	/**
 	 * Calls {@link org.apache.flink.streaming.api.operators.StreamOperator#open()}. This also
-	 * calls {@link org.apache.flink.streaming.api.operators.StreamOperator#setup(StreamTask, StreamConfig, Output, Output)}
+	 * calls {@link org.apache.flink.streaming.api.operators.StreamOperator#setup(StreamTask, StreamConfig, Output)}
 	 * if it was not called before.
 	 */
 	public void open() throws Exception {
@@ -285,6 +285,11 @@ public class OneInputStreamOperatorTestHarness<IN, OUT> {
 			}
 			outputList.add(new StreamRecord<OUT>(outputSerializer.copy(element.getValue()),
 					element.getTimestamp()));
+		}
+
+		@Override
+		public void sideCollect(StreamRecord element) {
+			//ignore
 		}
 
 		@Override

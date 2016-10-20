@@ -27,12 +27,10 @@ import org.apache.flink.util.Collector;
 public class TimestampedOutputContext<OUT> implements OutputContext<OUT>{
 	protected Collector<OUT> collector;
 	private Output<StreamRecord<OUT>> output;
-	private Output<StreamRecord<Object>> sideOutput;
 	private StreamRecord reuse = null;
 
-	public TimestampedOutputContext(Output<StreamRecord<OUT>> output, Output<StreamRecord<Object>> sideOutput){
+	public TimestampedOutputContext(Output<StreamRecord<OUT>> output){
 		this.output = output;
-		this.sideOutput = sideOutput;
 		reuse = new StreamRecord(null);
 	}
 
@@ -47,7 +45,7 @@ public class TimestampedOutputContext<OUT> implements OutputContext<OUT>{
 
 	@Override
 	public <W> void sideCollect(W element) {
-		sideOutput.collect(reuse.replace(element));
+		output.sideCollect(reuse.replace(element));
 	}
 
 	@Override
@@ -62,12 +60,10 @@ public class TimestampedOutputContext<OUT> implements OutputContext<OUT>{
 	@Override
 	public void emitWatermark(long watermarkts) {
 		output.emitWatermark(new Watermark(watermarkts));
-		sideOutput.emitWatermark(new Watermark(watermarkts));
 	}
 
 	@Override
 	public void close() {
 		output.close();
-		sideOutput.close();
 	}
 }
