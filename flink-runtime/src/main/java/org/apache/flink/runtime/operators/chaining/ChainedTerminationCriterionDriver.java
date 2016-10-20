@@ -23,6 +23,7 @@ import org.apache.flink.api.common.functions.RichFunction;
 import org.apache.flink.api.common.functions.IterationRuntimeContext;
 import org.apache.flink.api.common.operators.base.BulkIterationBase;
 import org.apache.flink.api.common.operators.base.BulkIterationBase.TerminationCriterionAggregator;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 
 public class ChainedTerminationCriterionDriver<IT, OT> extends ChainedDriver<IT, OT> {
@@ -61,6 +62,11 @@ public class ChainedTerminationCriterionDriver<IT, OT> extends ChainedDriver<IT,
 	public void collect(IT record) {
 		numRecordsIn.inc();
 		agg.aggregate(1);
+	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 	}
 
 	@Override

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,31 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-package org.apache.flink.util;
-
-import org.apache.flink.annotation.Public;
-import org.apache.flink.api.common.typeinfo.TypeHint;
+package org.apache.flink.api.common.typeinfo;
 
 /**
- * Collects a record and forwards it. The collector is the "push" counterpart of the
- * {@link java.util.Iterator}, which "pulls" data in.
+ * Created by chenqin on 10/20/16.
  */
-@Public
-public interface Collector<T> {
-	
-	/**
-	 * Emits a record.
-	 * 
-	 * @param record The record to collect.
-	 */
-	void collect(T record);
-
-	abstract<T> void sideCollect(TypeHint<T> tag, T value);
-	
-	/**
-	 * Closes the collector. If any data was buffered, that data will be flushed.
-	 */
-	void close();
+public abstract class OutputTag<T> extends TypeHint<T>{
+	@Override
+	public String toString() {
+		return "OutputTag: " + typeInfo;
+	}
 }

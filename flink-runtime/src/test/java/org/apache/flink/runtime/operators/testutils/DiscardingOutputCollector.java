@@ -20,12 +20,18 @@
 
 package org.apache.flink.runtime.operators.testutils;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.util.Collector;
 
 public class DiscardingOutputCollector<T> implements Collector<T> {
 	
 	@Override
 	public void collect(T rec) {}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
+	}
 
 	@Override
 	public void close() {}

@@ -22,6 +22,7 @@ package org.apache.flink.runtime.operators.drivers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.util.Collector;
 
@@ -43,6 +44,11 @@ public class GatheringCollector<T> implements Collector<T> {
 	public void collect(T record) {
 		T copy = this.serializer.createInstance();
 		this.list.add(this.serializer.copy(record, copy));
+	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
 	}
 
 	@Override

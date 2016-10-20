@@ -23,6 +23,7 @@ import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.api.common.state.State;
 import org.apache.flink.api.common.state.StateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.metrics.Counter;
@@ -348,9 +349,10 @@ public abstract class AbstractStreamOperator<OUT>
 			output.collect(record);
 		}
 
-		public void sideCollect(StreamRecord element) {
+		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
 			numRecordsOut.inc();
-			output.sideCollect(element);
+			output.sideCollect(tag, value);
 		}
 
 		@Override

@@ -20,6 +20,7 @@ package org.apache.flink.runtime.operators.sort;
 
 import org.apache.flink.api.common.functions.GroupCombineFunction;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeComparator;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.common.typeutils.TypeSerializerFactory;
@@ -606,6 +607,11 @@ public class CombiningUnilateralSortMerger<E> extends UnilateralSortMerger<E> {
 			catch (IOException ioex) {
 				throw new RuntimeException("An error occurred forwarding the record to the writer.", ioex);
 			}
+		}
+
+		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 		}
 
 		@Override

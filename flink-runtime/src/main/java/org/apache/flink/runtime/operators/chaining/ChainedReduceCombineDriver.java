@@ -22,6 +22,7 @@ package org.apache.flink.runtime.operators.chaining;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeComparator;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.configuration.Configuration;
@@ -149,6 +150,9 @@ public class ChainedReduceCombineDriver<T> extends ChainedDriver<T, T> {
 			throw new ExceptionInChainedStubException(taskName, ex);
 		}
 	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {}
 
 	private void collectSorted(T record) throws Exception {
 		// try writing to the sorter first

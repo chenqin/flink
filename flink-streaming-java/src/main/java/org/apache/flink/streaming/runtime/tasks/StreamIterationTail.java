@@ -21,6 +21,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.api.operators.Output;
@@ -96,8 +97,8 @@ public class StreamIterationTail<IN> extends OneInputStreamTask<IN, IN> {
 		}
 
 		@Override
-		public void sideCollect(StreamRecord element) {
-			throw new UnsupportedOperationException("side collect is yet to support in interative stream");
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 		}
 
 		@Override

@@ -22,6 +22,7 @@ package org.apache.flink.runtime.operators.chaining;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 import org.apache.flink.runtime.operators.BatchTask;
@@ -81,6 +82,9 @@ public class ChainedMapDriver<IT, OT> extends ChainedDriver<IT, OT> {
 			throw new ExceptionInChainedStubException(this.taskName, ex);
 		}
 	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {}
 
 	@Override
 	public void close() {

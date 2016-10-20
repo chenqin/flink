@@ -18,6 +18,7 @@
 package org.apache.flink.streaming.util;
 
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.ClosureCleaner;
@@ -288,8 +289,8 @@ public class OneInputStreamOperatorTestHarness<IN, OUT> {
 		}
 
 		@Override
-		public void sideCollect(StreamRecord element) {
-			//ignore
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 		}
 
 		@Override

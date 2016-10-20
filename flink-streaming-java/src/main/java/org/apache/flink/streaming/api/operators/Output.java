@@ -31,7 +31,7 @@ import org.apache.flink.util.Collector;
  * @param <T> The type of the elements that can be emitted.
  */
 @PublicEvolving
-public interface Output<T> extends Collector<T> , SideCollector<StreamRecord> {
+public interface Output<T> extends Collector<T>{
 
 	/**
 	 * Emits a {@link Watermark} from an operator. This watermark is broadcast to all downstream

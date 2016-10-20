@@ -32,6 +32,7 @@ import java.util.Set;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.io.InputFormat;
+import org.apache.flink.api.common.typeinfo.OutputTag;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.functions.KeySelector;
@@ -385,7 +386,7 @@ public class StreamGraph extends StreamingPlan {
 			StreamEdge edge = new StreamEdge(upstreamNode, downstreamNode, typeNumber, outputNames, partitioner);
 
 			if(outputNames.contains("~!@#$%^&*()_SIDEOUTPUT")){
-				edge.setSideEdge(true);
+				edge.setOutputTag(new OutputTag<String>() {});
 			}
 
 			getStreamNode(edge.getSourceId()).addOutEdge(edge);

@@ -20,6 +20,7 @@ package org.apache.flink.runtime.operators.chaining;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.common.typeutils.TypeSerializerFactory;
 import org.apache.flink.configuration.Configuration;
@@ -97,6 +98,9 @@ public class ChainedAllReduceDriver<IT> extends ChainedDriver<IT, IT> {
 			throw new ExceptionInChainedStubException(taskName, e);
 		}
 	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {}
 
 	@Override
 	public void close() {

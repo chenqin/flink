@@ -20,6 +20,8 @@ package org.apache.flink.streaming.runtime.io;
 import java.io.IOException;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.OutputTag;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.runtime.event.AbstractEvent;
 import org.apache.flink.runtime.io.network.api.writer.RecordWriter;
@@ -45,15 +47,17 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 
 	private boolean isSideOutput;
 
+	private OutputTag tag;
+
 	@SuppressWarnings("unchecked")
 	public RecordWriterOutput(
 			StreamRecordWriter<SerializationDelegate<StreamRecord<OUT>>> recordWriter,
 			TypeSerializer<?> outSerializer,
 			boolean enableWatermarkMultiplexing,
-			boolean isSideOutput) {
+			OutputTag tag) {
 
 		checkNotNull(recordWriter);
-		this.isSideOutput = isSideOutput;
+		this.tag = tag;
 
 		// generic hack: cast the writer to generic Object type so we can use it 
 		// with multiplexed records and watermarks
@@ -76,7 +80,7 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 	@Override
 	public void collect(StreamRecord<OUT> record) {
 		try {
-			if(!this.isSideOutput) {
+			if(this.tag == null) {
 				outSerializationDelegate.setInstance(record);
 				recordWriter.emit(outSerializationDelegate);
 			}
@@ -87,11 +91,10 @@ public class RecordWriterOutput<OUT> implements Output<StreamRecord<OUT>> {
 	}
 
 	@Override
-	public void sideCollect(StreamRecord element) {
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+		StreamRecord<T> element = new StreamRecord(value);
 		try{
-			//hack, filter out exception message to single output type downstream
-			//abstractstreamoperator should contains more than one output
-			if(this.isSideOutput) {
+			if(this.tag != null) {
 				outSerializationDelegate.setInstance(element);
 				recordWriter.emit(outSerializationDelegate);
 			}

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.OutputTag;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.metrics.Counter;
@@ -97,7 +99,7 @@ public class OperatorChain<OUT> {
 				//accordiningly
 				RecordWriterOutput<?> streamOutput = createStreamOutput(
 						outEdge, chainedConfigs.get(outEdge.getSourceId()), i,
-						containingTask.getEnvironment(), enableTimestamps, reporter, containingTask.getName(), outEdge.isSideEdge());
+						containingTask.getEnvironment(), enableTimestamps, reporter, containingTask.getName(), outEdge.getOutputTag());
 	
 				this.streamOutputs[i] = streamOutput;
 				streamOutputMap.put(outEdge, streamOutput);
@@ -290,11 +292,11 @@ public class OperatorChain<OUT> {
 	}
 	
 	private static <T> RecordWriterOutput<T> createStreamOutput(
-			StreamEdge edge, StreamConfig upStreamConfig, int outputIndex,
-			Environment taskEnvironment, boolean withTimestamps,
-			AccumulatorRegistry.Reporter reporter, String taskName, boolean isSideOutput)
+		StreamEdge edge, StreamConfig upStreamConfig, int outputIndex,
+		Environment taskEnvironment, boolean withTimestamps,
+		AccumulatorRegistry.Reporter reporter, String taskName, OutputTag tag)
 	{
-		TypeSerializer<?> outSerializer = isSideOutput ?
+		TypeSerializer<?> outSerializer = tag == null ?
 		outSerializer = upStreamConfig.getTypeSerializerSideOut(taskEnvironment.getUserClassLoader()) :
 			upStreamConfig.getTypeSerializerOut(taskEnvironment.getUserClassLoader());
 
@@ -310,7 +312,7 @@ public class OperatorChain<OUT> {
 		output.setReporter(reporter);
 		output.setMetricGroup(taskEnvironment.getMetricGroup().getIOMetricGroup());
 
-		return new RecordWriterOutput<T>(output, outSerializer, withTimestamps, isSideOutput);
+		return new RecordWriterOutput<T>(output, outSerializer, withTimestamps, tag);
 	}
 
 	
@@ -341,9 +343,8 @@ public class OperatorChain<OUT> {
 		}
 
 		@Override
-		public void sideCollect(StreamRecord element) {
-			numRecordsIn.inc();
-			LOG.debug("side collect an emlement {}", element);
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+			// TODO: figure out how
 		}
 
 		@Override
@@ -406,8 +407,8 @@ public class OperatorChain<OUT> {
 		}
 
 		@Override
-		public void sideCollect(StreamRecord element) {
-			throw new UnsupportedOperationException("side output should not be broadcasted!");
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+			throw new UnsupportedOperationException("side collect can't broadcast");
 		}
 
 		@Override

@@ -19,6 +19,7 @@
 package org.apache.flink.api.java.operators.translation;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
 
@@ -58,4 +59,8 @@ public class Tuple3WrappingCollector<IN, K1, K2> implements Collector<IN>, java.
 		this.wrappedCollector.collect(outTuple);
 	}
 
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+
+	}
 }

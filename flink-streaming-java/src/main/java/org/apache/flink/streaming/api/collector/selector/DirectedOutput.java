@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.graph.StreamEdge;
 import org.apache.flink.streaming.api.operators.Output;
@@ -130,7 +131,7 @@ public class DirectedOutput<OUT> implements Output<StreamRecord<OUT>> {
 	}
 
 	@Override
-	public void sideCollect(StreamRecord element) {
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
 
 	}
 

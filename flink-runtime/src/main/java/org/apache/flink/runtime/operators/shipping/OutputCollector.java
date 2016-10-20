@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.runtime.io.network.api.writer.RecordWriter;
 import org.apache.flink.runtime.plugable.SerializationDelegate;
@@ -77,6 +78,9 @@ public class OutputCollector<T> implements Collector<T> {
 								+ "Null values are only supported as fields inside other objects.");
 		}
 	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {}
 
 	@Override
 	public void close() {

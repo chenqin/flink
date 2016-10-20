@@ -17,6 +17,7 @@
  */
 package org.apache.flink.runtime.operators.util.metrics;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.util.Collector;
 
@@ -33,6 +34,12 @@ public class CountingCollector<OUT> implements Collector<OUT> {
 	public void collect(OUT record) {
 		this.numRecordsOut.inc();
 		this.collector.collect(record);
+	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+		this.numRecordsOut.inc();
+		this.collector.sideCollect(tag, value);
 	}
 
 	@Override

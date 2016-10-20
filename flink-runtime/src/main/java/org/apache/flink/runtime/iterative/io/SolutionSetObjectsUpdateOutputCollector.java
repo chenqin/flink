@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.iterative.io;
 
 import org.apache.flink.api.common.operators.util.JoinHashMap;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.util.Collector;
 
@@ -57,6 +58,11 @@ public class SolutionSetObjectsUpdateOutputCollector<T> implements Collector<T> 
 		if (delegate != null) {
 			delegate.collect(record);
 		}
+	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
 	}
 
 	@Override

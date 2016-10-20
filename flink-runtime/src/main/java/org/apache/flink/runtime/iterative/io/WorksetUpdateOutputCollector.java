@@ -21,6 +21,7 @@ package org.apache.flink.runtime.iterative.io;
 
 import java.io.IOException;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.core.memory.DataOutputView;
 import org.apache.flink.util.Collector;
@@ -50,6 +51,11 @@ public class WorksetUpdateOutputCollector<T> implements Collector<T> {
 		this.delegate = delegate;
 
 		this.elementsCollected = 0;
+	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
 	}
 
 	@Override

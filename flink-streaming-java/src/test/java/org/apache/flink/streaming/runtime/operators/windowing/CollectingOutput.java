@@ -18,6 +18,7 @@
 
 package org.apache.flink.streaming.runtime.operators.windowing;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.streaming.api.operators.Output;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -65,7 +66,7 @@ public class CollectingOutput<T> implements Output<StreamRecord<T>> {
 	}
 
 	@Override
-	public void sideCollect(StreamRecord element) {
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
 
 	}
 

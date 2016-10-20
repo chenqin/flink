@@ -21,6 +21,7 @@ package org.apache.flink.api.common.functions.util;
 import java.util.List;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.util.Collector;
 
 /**
@@ -40,6 +41,11 @@ public class ListCollector<T> implements Collector<T> {
 	@Override
 	public void collect(T record) {
 		list.add(record);
+	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
 	}
 
 	@Override

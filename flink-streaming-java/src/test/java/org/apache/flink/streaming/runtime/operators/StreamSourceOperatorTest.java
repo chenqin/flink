@@ -21,6 +21,7 @@ package org.apache.flink.streaming.runtime.operators;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.accumulators.Accumulator;
 import org.apache.flink.api.common.functions.StoppableFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.execution.Environment;
 import org.apache.flink.runtime.operators.testutils.DummyEnvironment;
@@ -332,7 +333,9 @@ public class StreamSourceOperatorTest {
 		}
 
 		@Override
-		public void sideCollect(StreamRecord element) {}
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
+		}
 
 		@Override
 		public void close() {}

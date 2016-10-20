@@ -18,6 +18,7 @@
 
 package org.apache.flink.streaming.api.operators;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.util.SideCollector;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -33,7 +34,7 @@ import org.apache.flink.util.Collector;
  * @param <T> The type of the elements that can be emitted.
  */
 @Internal
-public class TimestampedCollector<T> implements Collector<T>, SideCollector<Object> {
+public class TimestampedCollector<T> implements Collector<T>{
 	
 	private final Output<StreamRecord<T>> output;
 
@@ -48,16 +49,11 @@ public class TimestampedCollector<T> implements Collector<T>, SideCollector<Obje
 		this.reuse = new StreamRecord<T>(null);
 	}
 
-	/**
-	 * hack, use generic to avoid type parameter changes everywhere
-	 * userFunction should contains a processingContext which impl
-	 * Collect(T out) and sideCollect(S sideOut)
-	 * @param record
-	 */
 	@Override
-	public void sideCollect(Object record) {
-		output.sideCollect(reuse.replace(record));
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+		output.sideCollect(tag, value);
 	}
+
 
 	@Override
 	public void collect(T record) {

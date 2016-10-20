@@ -18,6 +18,7 @@
 
 package org.apache.flink.runtime.iterative.task;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.flink.api.common.functions.Function;
@@ -80,6 +81,10 @@ public class IterationTailTask<S extends Function, OT> extends AbstractIterative
 				outputCollector = new Collector<OT>() {
 					@Override
 					public void collect(OT record) {}
+
+					@Override
+					public <T> void sideCollect(TypeHint<T> tag, T value) {}
+
 					@Override
 					public void close() {}
 				};

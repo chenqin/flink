@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.typeinfo.OutputTag;
 import org.apache.flink.streaming.runtime.partitioner.StreamPartitioner;
 
 /**
@@ -38,7 +39,7 @@ public class StreamEdge implements Serializable {
 	final private StreamNode sourceVertex;
 	final private StreamNode targetVertex;
 
-	private boolean isSideEdge;
+	private OutputTag outputTag;
 	/**
 	 * The type number of the input for co-tasks.
 	 */
@@ -53,7 +54,6 @@ public class StreamEdge implements Serializable {
 
 	public StreamEdge(StreamNode sourceVertex, StreamNode targetVertex, int typeNumber, StreamPartitioner<?> outputPartitioner){
 		this(sourceVertex, targetVertex, typeNumber, null, outputPartitioner);
-		this.isSideEdge = true;
 	}
 
 	public StreamEdge(StreamNode sourceVertex, StreamNode targetVertex, int typeNumber,
@@ -68,7 +68,7 @@ public class StreamEdge implements Serializable {
 				+ "_" + outputPartitioner;
 	}
 
-	public boolean isSideEdge() { return isSideEdge; }
+	public OutputTag getOutputTag() { return outputTag; }
 
 	public StreamNode getSourceVertex() {
 		return sourceVertex;
@@ -102,8 +102,8 @@ public class StreamEdge implements Serializable {
 		this.outputPartitioner = partitioner;
 	}
 
-	public void setSideEdge(boolean isSideEdge){
-		this.isSideEdge = isSideEdge;
+	public void setOutputTag(final OutputTag tag){
+		this.outputTag = tag;
 	}
 
 	@Override

@@ -18,6 +18,7 @@
 package org.apache.flink.runtime.operators;
 
 import org.apache.flink.api.common.functions.Function;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 import org.apache.flink.runtime.operators.chaining.ChainedDriver;
 import org.apache.flink.runtime.operators.chaining.ExceptionInChainedStubException;
@@ -66,6 +67,11 @@ public class NoOpChainedDriver<IT> extends ChainedDriver<IT, IT> {
 		} catch (Exception ex) {
 			throw new ExceptionInChainedStubException(this.taskName, ex);
 		}
+	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 	}
 
 	@Override

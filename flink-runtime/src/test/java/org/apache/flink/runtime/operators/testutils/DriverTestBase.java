@@ -21,6 +21,7 @@ package org.apache.flink.runtime.operators.testutils;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeComparator;
 import org.apache.flink.api.common.typeutils.TypeSerializerFactory;
 import org.apache.flink.configuration.Configuration;
@@ -413,6 +414,11 @@ public class DriverTestBase<S extends Function> extends TestLogger implements Ta
 		}
 
 		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
+		}
+
+		@Override
 		public void close() {}
 	}
 	
@@ -423,6 +429,11 @@ public class DriverTestBase<S extends Function> extends TestLogger implements Ta
 		@Override
 		public void collect(Record record) {
 			this.num++;
+		}
+
+		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 		}
 
 		@Override

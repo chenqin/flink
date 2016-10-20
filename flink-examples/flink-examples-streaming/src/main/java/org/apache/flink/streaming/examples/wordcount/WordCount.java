@@ -18,6 +18,7 @@
 package org.apache.flink.streaming.examples.wordcount;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.typeinfo.OutputTag;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -88,6 +89,8 @@ public class WordCount {
 		env.execute("Streaming WordCount");
 	}
 
+	static final OutputTag<String> sideOutputTag = new OutputTag<String>() {};
+
 	// *************************************************************************
 	// USER FUNCTIONS
 	// *************************************************************************
@@ -113,8 +116,7 @@ public class WordCount {
 					out.collect(new Tuple2<String, Integer>(token, 1));
 				}
 			}
-			TimestampedCollector tc = (TimestampedCollector) out;
-			tc.sideCollect("olleh");
+			out.sideCollect(sideOutputTag, "sideoutput");
 		}
 	}
 

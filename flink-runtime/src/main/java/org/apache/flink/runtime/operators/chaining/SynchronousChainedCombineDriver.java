@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.flink.api.common.functions.GroupCombineFunction;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeComparator;
 import org.apache.flink.api.common.typeutils.TypeComparatorFactory;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -188,6 +189,11 @@ public class SynchronousChainedCombineDriver<IN, OUT> extends ChainedDriver<IN, 
 		} catch (IOException e) {
 			throw new ExceptionInChainedStubException(this.taskName, e);
 		}
+	}
+
+	@Override
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 	}
 
 	// --------------------------------------------------------------------------------------------

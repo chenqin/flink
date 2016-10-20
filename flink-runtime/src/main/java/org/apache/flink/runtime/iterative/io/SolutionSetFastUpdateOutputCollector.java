@@ -20,6 +20,7 @@ package org.apache.flink.runtime.iterative.io;
 
 import java.io.IOException;
 
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.runtime.operators.hash.CompactingHashTable;
 import org.apache.flink.util.Collector;
 
@@ -57,6 +58,11 @@ public class SolutionSetFastUpdateOutputCollector<T> implements Collector<T> {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public <T1> void sideCollect(TypeHint<T1> tag, T1 value) {
+
 	}
 
 	@Override

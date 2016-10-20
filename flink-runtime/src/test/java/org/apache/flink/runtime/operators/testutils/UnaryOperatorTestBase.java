@@ -21,6 +21,7 @@ package org.apache.flink.runtime.operators.testutils;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.util.FunctionUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeutils.TypeComparator;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.common.typeutils.TypeSerializerFactory;
@@ -407,6 +408,11 @@ public class UnaryOperatorTestBase<S extends Function, IN, OUT> extends TestLogg
 		}
 
 		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
+		}
+
+		@Override
 		public void close() {}
 	}
 	
@@ -417,6 +423,11 @@ public class UnaryOperatorTestBase<S extends Function, IN, OUT> extends TestLogg
 		@Override
 		public void collect(OUT record) {
 			this.num++;
+		}
+
+		@Override
+		public <T> void sideCollect(TypeHint<T> tag, T value) {
+
 		}
 
 		@Override

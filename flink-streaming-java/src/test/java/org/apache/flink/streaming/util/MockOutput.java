@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.streaming.api.operators.Output;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -44,7 +45,7 @@ public class MockOutput<T> implements Output<StreamRecord<T>> {
 	}
 
 	@Override
-	public void sideCollect(StreamRecord element) {
+	public <T> void sideCollect(TypeHint<T> tag, T value) {
 
 	}
 
