@@ -17,11 +17,7 @@
 
 package org.apache.flink.api.common.functions;
 
-import org.apache.flink.util.Collector;
 
-public interface OutputContext<OUT> extends Collector<OUT>{
-	void collect(OUT element);
-	<W> void sideCollect(W element);
-	void setTimeStamp(long timeStamp);
-	void emitWatermark(long watermarkts);
+public interface FlatMapFunction2<IN, OUT> extends FlatMapFunction<IN, OUT>{
+	void flatMap(IN input, OutputContext<OUT> context);
 }

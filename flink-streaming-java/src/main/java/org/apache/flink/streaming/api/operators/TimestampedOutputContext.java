@@ -18,39 +18,52 @@
 package org.apache.flink.streaming.api.operators;
 
 import org.apache.flink.annotation.Internal;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
+import org.apache.flink.util.Collector;
 
 @Internal
-public class StreamFlatMap<IN, OUT>
-		extends AbstractUdfStreamOperator<OUT, FlatMapFunction<IN, OUT>>
-		implements OneInputStreamOperator<IN, OUT> {
+public class TimestampedOutputContext<OUT> implements OutputContext<OUT>{
+	protected Collector<OUT> collector;
+	private Output<StreamRecord<OUT>> output;
+	private StreamRecord reuse = null;
 
-	private static final long serialVersionUID = 1L;
+	public TimestampedOutputContext(Output<StreamRecord<OUT>> output){
+		this.output = output;
+		reuse = new StreamRecord(null);
+	}
 
-	private transient OutputContext<OUT> contex;
-
-	public StreamFlatMap(FlatMapFunction<IN, OUT> flatMapper) {
-		super(flatMapper);
-		chainingStrategy = ChainingStrategy.ALWAYS;
+	public void setOutput(Output<StreamRecord<OUT>> output){
+		this.output = output;
 	}
 
 	@Override
-	public void open() throws Exception {
-		super.open();
-		contex = new TimestampedOutputContext(output);
+	public void collect(OUT element) {
+		output.collect(reuse.replace(element));
 	}
 
 	@Override
-	public void processElement(StreamRecord<IN> element) throws Exception {
-		contex.setTimeStamp(element.hasTimestamp()? element.getTimestamp() : -1l);
-		userFunction.flatMap(element.getValue(), contex);
+	public <W> void sideCollect(W element) {
+		output.sideCollect(reuse.replace(element));
 	}
 
 	@Override
-	public void processWatermark(Watermark mark) throws Exception {
-		contex.emitWatermark(mark.getTimestamp());
+	public void setTimeStamp(long timeStamp) {
+		if(timeStamp == -1){
+			reuse.eraseTimestamp();
+		} else{
+			reuse.setTimestamp(timeStamp);
+		}
+	}
+
+	@Override
+	public void emitWatermark(long watermarkts) {
+		output.emitWatermark(new Watermark(watermarkts));
+	}
+
+	@Override
+	public void close() {
+		output.close();
 	}
 }
