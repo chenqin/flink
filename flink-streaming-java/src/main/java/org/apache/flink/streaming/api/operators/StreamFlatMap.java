@@ -19,18 +19,17 @@ package org.apache.flink.streaming.api.operators;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.OutputContext;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 
 @Internal
 public class StreamFlatMap<IN, OUT>
-		extends AbstractUdfStreamOperator<OUT, FlatMapFunction<IN, OUT>>
-		implements OneInputStreamOperator<IN, OUT> {
+	extends AbstractUdfStreamOperator<OUT, FlatMapFunction<IN, OUT>>
+	implements OneInputStreamOperator<IN, OUT> {
 
 	private static final long serialVersionUID = 1L;
 
-	private transient OutputContext<OUT> contex;
+	private transient TimestampedCollector<OUT> collector;
 
 	public StreamFlatMap(FlatMapFunction<IN, OUT> flatMapper) {
 		super(flatMapper);
@@ -40,17 +39,17 @@ public class StreamFlatMap<IN, OUT>
 	@Override
 	public void open() throws Exception {
 		super.open();
-		contex = new TimestampedOutputContext(output);
+		collector = new TimestampedCollector<OUT>(output);
 	}
 
 	@Override
 	public void processElement(StreamRecord<IN> element) throws Exception {
-		contex.setTimeStamp(element.hasTimestamp()? element.getTimestamp() : -1l);
-		userFunction.flatMap(element.getValue(), contex);
+		collector.setTimestamp(element);
+		userFunction.flatMap(element.getValue(), collector);
 	}
 
 	@Override
 	public void processWatermark(Watermark mark) throws Exception {
-		contex.emitWatermark(mark.getTimestamp());
+		output.emitWatermark(mark);
 	}
 }
