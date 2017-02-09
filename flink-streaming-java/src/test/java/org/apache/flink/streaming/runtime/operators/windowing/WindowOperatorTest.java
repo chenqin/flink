@@ -66,7 +66,6 @@ import org.apache.flink.streaming.runtime.tasks.OperatorStateHandles;
 import org.apache.flink.streaming.util.KeyedOneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.TestHarnessUtil;
-import org.apache.flink.streaming.util.WindowingTestHarness;
 import org.apache.flink.streaming.util.outputtags.LateArrivingOutputTag;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.TestLogger;
@@ -1627,7 +1626,8 @@ public class WindowOperatorTest extends TestLogger {
 		expected.add(new Watermark(14600));
 
 		testHarness.processElement(new StreamRecord<>(new Tuple2<>("key2", 1), 10000));
-    // sideoutput as late
+
+        // sideoutput as late
 		sideExpected.add(new StreamRecord<>(new Tuple2<>("key2", 1), 10000, tag));
 
 		expected.add(new StreamRecord<>(new Tuple3<>("key2-1", 10000L, 14600L), 14599));
