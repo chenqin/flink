@@ -85,6 +85,8 @@ public abstract class StateDescriptor<S extends State, T> implements Serializabl
 	/** Name that uniquely identifies state created from this StateDescriptor. */
 	protected final String name;
 
+	protected boolean isCached = false;
+
 	/** The serializer for the type. May be eagerly initialized in the constructor,
 	 * or lazily once the {@link #initializeSerializerUnlessSet(ExecutionConfig)} method
 	 * is called. */

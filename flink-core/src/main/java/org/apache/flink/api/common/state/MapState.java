@@ -40,7 +40,6 @@ import java.util.Map;
  */
 @PublicEvolving
 public interface MapState<UK, UV> extends State {
-
 	/**
 	 * Returns the current value associated with the given key.
 	 *

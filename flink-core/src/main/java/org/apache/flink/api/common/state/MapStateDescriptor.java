@@ -86,6 +86,11 @@ public class MapStateDescriptor<UK, UV> extends StateDescriptor<MapState<UK, UV>
 		super(name, new MapTypeInfo<>(keyClass, valueClass), null);
 	}
 
+	public MapStateDescriptor<UK, UV> withCache() {
+		this.isCached = true;
+		return this;
+	}
+
 	@Override
 	public Type getType() {
 		return Type.MAP;

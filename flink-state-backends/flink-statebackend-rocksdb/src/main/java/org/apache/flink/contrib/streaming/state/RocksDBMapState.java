@@ -50,6 +50,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 
@@ -70,7 +73,6 @@ class RocksDBMapState<K, N, UK, UV>
 	/** Serializer for the keys and values. */
 	private final TypeSerializer<UK> userKeySerializer;
 	private final TypeSerializer<UV> userValueSerializer;
-
 	/**
 	 * Creates a new {@code RocksDBMapState}.
 	 *
@@ -116,20 +118,18 @@ class RocksDBMapState<K, N, UK, UV>
 	// ------------------------------------------------------------------------
 
 	@Override
-	public UV get(UK userKey) throws IOException, RocksDBException {
+	public UV get(UK userKey) throws IOException, RocksDBException, ExecutionException {
 		byte[] rawKeyBytes = serializeCurrentKeyWithGroupAndNamespacePlusUserKey(userKey, userKeySerializer);
 		byte[] rawValueBytes = backend.db.get(columnFamily, rawKeyBytes);
-
 		return (rawValueBytes == null ? null : deserializeUserValue(dataInputView, rawValueBytes, userValueSerializer));
 	}
 
 	@Override
 	public void put(UK userKey, UV userValue) throws IOException, RocksDBException {
-
 		byte[] rawKeyBytes = serializeCurrentKeyWithGroupAndNamespacePlusUserKey(userKey, userKeySerializer);
 		byte[] rawValueBytes = serializeValueNullSensitive(userValue, userValueSerializer);
-
 		backend.db.put(columnFamily, writeOptions, rawKeyBytes, rawValueBytes);
+		backend.statesCache.invalidate(columnFamily);
 	}
 
 	@Override
@@ -145,12 +145,17 @@ class RocksDBMapState<K, N, UK, UV>
 				writeBatchWrapper.put(columnFamily, rawKeyBytes, rawValueBytes);
 			}
 		}
+		backend.statesCache.invalidate(columnFamily);
 	}
 
 	@Override
 	public void remove(UK userKey) throws IOException, RocksDBException {
 		byte[] rawKeyBytes = serializeCurrentKeyWithGroupAndNamespacePlusUserKey(userKey, userKeySerializer);
+		TreeMap map = backend.statesCache.getIfPresent(columnFamily);
 
+		if (map != null && map.get(rawKeyBytes) != null) {
+			map.remove(rawKeyBytes);
+		}
 		backend.db.delete(columnFamily, writeOptions, rawKeyBytes);
 	}
 
@@ -164,6 +169,15 @@ class RocksDBMapState<K, N, UK, UV>
 
 	@Override
 	public Iterable<Map.Entry<UK, UV>> entries() {
+		if (this.isCached()) {
+			return () -> {
+				try {
+					return cachedEntries().entrySet().iterator();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
+			};
+		}
 		final Iterator<Map.Entry<UK, UV>> iterator = iterator();
 
 		// Return null to make the behavior consistent with other states.
@@ -225,6 +239,26 @@ class RocksDBMapState<K, N, UK, UV>
 		} catch (Exception e) {
 			throw new StateMigrationException("Error while trying to migrate RocksDB map state.", e);
 		}
+	}
+
+	@Override
+	public boolean isCached() {
+		return true;
+	}
+
+	public TreeMap<UK, UV> cachedEntries() throws ExecutionException {
+		return (TreeMap<UK, UV>) backend.statesCache.get(columnFamily, new Callable<TreeMap<UK, UV>>() {
+			@Override
+			public TreeMap<UK, UV> call() throws Exception {
+				TreeMap<UK, UV> map = new TreeMap<>();
+				Iterator<Map.Entry<UK, UV>> iterator = iterator();
+				while (iterator.hasNext()) {
+					Map.Entry<UK, UV> entry = iterator.next();
+					map.put(entry.getKey(), entry.getValue());
+				}
+				return map;
+			}
+		});
 	}
 
 	@Override
