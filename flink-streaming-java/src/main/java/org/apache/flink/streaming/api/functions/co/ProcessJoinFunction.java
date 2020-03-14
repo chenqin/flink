@@ -46,10 +46,6 @@ public abstract class ProcessJoinFunction<IN1, IN2, OUT> extends AbstractRichFun
 	 */
 	public static class JoinParameters implements Serializable {
 		/**
-		 * {@code IntervalJoinOperator} cleanup records from {@link IN2} at timestamp + rightSideCleanupOverwrite time.
-		 */
-		public long rightSideCleanupOverwrite;
-		/**
 		 * size of one side cache used in {@code IntervalJoinOperator}. Default is 1000 keys.
 		 */
 		public long maxCachedKeyedBufferEntries;
@@ -60,11 +56,10 @@ public abstract class ProcessJoinFunction<IN1, IN2, OUT> extends AbstractRichFun
 		public long expiresInNextNanoSeconds;
 
 		public JoinParameters() {
-			this(Long.MAX_VALUE, 1000L, Long.MAX_VALUE);
+			this(1000L, Long.MAX_VALUE);
 		}
 
-		public JoinParameters(long rightSideCleanupOverwrite, long maxCachedKeyedBufferEntries, long expiresInNextNanoSeconds) {
-			this.rightSideCleanupOverwrite = rightSideCleanupOverwrite;
+		public JoinParameters(long maxCachedKeyedBufferEntries, long expiresInNextNanoSeconds) {
 			this.maxCachedKeyedBufferEntries = maxCachedKeyedBufferEntries;
 			this.expiresInNextNanoSeconds = expiresInNextNanoSeconds;
 		}

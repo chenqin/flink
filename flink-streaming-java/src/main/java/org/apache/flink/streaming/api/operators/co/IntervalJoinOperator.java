@@ -293,10 +293,6 @@ public class IntervalJoinOperator<K, T1, T2, OUT>
 		if (isLeft) {
 			internalTimerService.registerEventTimeTimer(CLEANUP_NAMESPACE_LEFT, cleanupTime);
 		} else {
-			// overwrite retention of right side buffer to improve performance
-			if (joinParameters.rightSideCleanupOverwrite != Long.MAX_VALUE) {
-				cleanupTime = ourTimestamp + joinParameters.rightSideCleanupOverwrite;
-			}
 			internalTimerService.registerEventTimeTimer(CLEANUP_NAMESPACE_RIGHT, cleanupTime);
 		}
 	}
@@ -401,10 +397,6 @@ public class IntervalJoinOperator<K, T1, T2, OUT>
 				long timestamp = (lowerBound <= 0L) ? timerTimestamp + lowerBound : timerTimestamp;
 				logger.trace("Removing from right buffer @ {}", timestamp);
 
-				// restore bucket timestamp if {@code rightSideRetentionOverwrite} applied
-				if (joinParameters.rightSideCleanupOverwrite != Long.MAX_VALUE) {
-					timestamp = timerTimestamp - joinParameters.rightSideCleanupOverwrite;
-				}
 				rightBuffer.remove(timestamp);
 
 				// update right buffer cache if {@link processElement1} is last called for this {@link getCurrentKey()}
