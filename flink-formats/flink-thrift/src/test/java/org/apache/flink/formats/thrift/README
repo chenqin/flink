@@ -1,0 +1,2 @@
+run
+thrift --gen java sample.thrift

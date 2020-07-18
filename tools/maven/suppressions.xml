@@ -56,6 +56,10 @@ under the License.
 		<!-- Classes copied from AWS -->
 		<suppress
 			files="com[\\/]amazonaws[\\/]services[\\/]s3[\\/]model[\\/]transform[\\/]XmlResponsesSaxParser.java"
+			checks=".java"/>
+	    <!-- Thrift generated skeletons-->
+		<suppress
+			files="[\\/]gen-java.*[\\/]"
 			checks=".*"/>
 		<!-- target directory is not relevant for checkstyle -->
 		<suppress

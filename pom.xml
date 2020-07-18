@@ -88,7 +88,6 @@ under the License.
 		<module>flink-walkthroughs</module>
 		<module>flink-kubernetes</module>
 		<module>flink-external-resources</module>
-        <module>flink-thrift</module>
     </modules>
 
 	<properties>
@@ -155,7 +154,7 @@ under the License.
 			For Hadoop 2.7, the minor Hadoop version supported for flink-shaded-hadoop-2-uber is 2.7.5
 		-->
 		<hivemetastore.hadoop.version>2.7.5</hivemetastore.hadoop.version>
-		<thrift.version>0.9.2</thrift.version>
+		<thrift.version>0.13.0</thrift.version>
 		<japicmp.referenceVersion>1.11.0</japicmp.referenceVersion>
 		<japicmp.outputDir>tools/japicmp-output</japicmp.outputDir>
 	</properties>
