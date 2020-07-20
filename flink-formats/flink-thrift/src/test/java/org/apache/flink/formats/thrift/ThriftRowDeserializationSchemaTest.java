@@ -19,7 +19,7 @@ import java.util.HashSet;
 
 
 /**
- * test ThriftRowDeserailizationSchema.
+ * test ThriftRowDeserailizationSchema Row generation, RowTypeInfo extraction from thrift struct.
  */
 public class ThriftRowDeserializationSchemaTest extends junit.framework.TestCase {
 
