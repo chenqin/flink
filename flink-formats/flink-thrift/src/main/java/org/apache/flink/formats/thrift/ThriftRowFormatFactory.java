@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Table format factory for providing configured instances of JSON-to-row {@link SerializationSchema}
+ * Table format factory for providing configured instances of Thrift-to-row {@link SerializationSchema}
  * and {@link DeserializationSchema}.
  */
 public class ThriftRowFormatFactory extends TableFormatFactoryBase<Row>
