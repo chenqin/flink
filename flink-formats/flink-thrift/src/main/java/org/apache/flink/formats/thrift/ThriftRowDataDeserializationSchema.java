@@ -4,8 +4,6 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.RowData;
 
-import org.apache.flink.table.types.logical.RowType;
-
 import org.apache.thrift.TBase;
 import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;
@@ -13,9 +11,12 @@ import org.apache.thrift.TException;
 import java.io.IOException;
 
 public class ThriftRowDataDeserializationSchema implements DeserializationSchema<RowData> {
+
+	/** return null if not able to deserialize message **/
 	private Boolean skipCorruptedMessage;
 	/** TypeInformation of the produced {@link RowData}. **/
 	private final TypeInformation<RowData> resultTypeInfo;
+
 	private final transient TBase reuseInstance;
 	private final TDeserializer deserializer;
 

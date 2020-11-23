@@ -5,10 +5,12 @@ import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.EnumMetaData;
@@ -40,13 +42,27 @@ public class ThriftRowTranslator {
   private static final String ver = "0.25";
   private static final Logger LOG = LoggerFactory.getLogger(ThriftRowTranslator.class);
 
-  /**
-   * sort fields by thrift id.
-   * @param thirftClass
-   * @param tBase
-   * @return
-   */
-  private static List<Map.Entry<? extends TFieldIdEnum, FieldMetaData>> getSortedFields(
+	public static Class<? extends TBase> getThriftClass(FieldValueMetaData metaData) {
+		switch (metaData.type) {
+			case TType.LIST:
+				ListMetaData listMetaData = (ListMetaData) metaData;
+				return getThriftClass(listMetaData.elemMetaData);
+			case TType.SET:
+				SetMetaData setMetaData = (SetMetaData) metaData;
+				return getThriftClass(setMetaData.elemMetaData);
+			case TType.MAP:
+				// TODO: only support value class for now
+				MapMetaData mapMetaData = (MapMetaData) metaData;
+				return getThriftClass(mapMetaData.valueMetaData);
+			case TType.STRUCT:
+				StructMetaData structMetaData = (StructMetaData) metaData;
+				return structMetaData.structClass;
+			default:
+				return null;
+		}
+	}
+
+  public static List<Map.Entry<? extends TFieldIdEnum, FieldMetaData>> getSortedFields(
       Class<? extends TBase> thirftClass, TBase tBase) {
     Map<? extends TFieldIdEnum, FieldMetaData> metaDataMap;
 
@@ -352,7 +368,7 @@ public class ThriftRowTranslator {
         Object[] items = (Object[]) val;
         List<Object> transform = new ArrayList<>();
         for (int i = 0 ; i < items.length ; i++) {
-          transform.add(rowValueToThriftValue(listMetaData.elemMetaData,items[i]));
+          transform.add(rowValueToThriftValue(listMetaData.elemMetaData, items[i]));
         }
         return transform;
       case TType.SET:
@@ -360,7 +376,7 @@ public class ThriftRowTranslator {
         Object[] itemsset = (Object[]) val;
         Set transformset = new HashSet();
         for (int i = 0 ; i < itemsset.length ; i++) {
-          transformset.add(rowValueToThriftValue(setMetaData.elemMetaData,itemsset[i]));
+          transformset.add(rowValueToThriftValue(setMetaData.elemMetaData, itemsset[i]));
         }
         return transformset;
       case TType.MAP:
@@ -378,6 +394,28 @@ public class ThriftRowTranslator {
       default:
         throw new RuntimeException("unhandled thrift type");
     }
+  }
+
+  public static Class<? extends TBase> getThriftClass(String thriftClassName) {
+	  Class<? extends TBase> thriftClass = null;
+	  try {
+		  thriftClass = (Class<? extends TBase>) Class.forName(thriftClassName);
+	  } catch (ClassNotFoundException e) {
+		  throw new ValidationException("can't load thrift class");
+	  } catch (ClassCastException e) {
+		  throw new ValidationException("can't cast thrift class to Tbase extend");
+	  }
+	  return thriftClass;
+  }
+
+  public static TBase getReusableInstance (Class<? extends TBase> thriftClass) {
+		try {
+			return thriftClass.newInstance();
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e.getCause());
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e.getCause());
+		}
   }
 
   @Deprecated

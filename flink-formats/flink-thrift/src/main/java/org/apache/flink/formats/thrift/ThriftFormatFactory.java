@@ -6,7 +6,6 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.format.EncodingFormat;
@@ -15,16 +14,13 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.factories.DeserializationFormatFactory;
 import org.apache.flink.table.factories.DynamicTableFactory;
-import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
-
 import org.apache.flink.util.Preconditions;
 
 import org.apache.thrift.TBase;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +32,9 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 
 	public static final String IDENTIFIER = "thrift";
 
+	private static TableSchema inferSchema(String thriftClassName) {
+
+	}
 	/**
 	 * Creates a format from the given context and format options.
 	 *
@@ -52,20 +51,9 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 
 		String thriftClassName = formatOptions.get(ThriftOptions.ThriftClassName);
 		Boolean skipCorruptedMessage = formatOptions.get(ThriftOptions.skipCorruptedMessage);
-		Class<? extends TBase> thriftClass = null;
-		TBase instance = null;
-		try {
-			thriftClass = (Class<? extends TBase>) Class.forName(thriftClassName);
-			instance = thriftClass.newInstance();
-		} catch (ClassNotFoundException e) {
-			throw new ValidationException("can't load thrift class");
-		} catch (ClassCastException e) {
-			throw new ValidationException("can't cast thrift class to Tbase extend");
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		}
+		Class<? extends TBase> thriftClass = ThriftRowTranslator.getThriftClass(thriftClassName);
+		TBase instance = ThriftRowTranslator.getReusableInstance(thriftClass);
+
 		final TableSchema schema = ThriftRowTranslator.getTableSchema(thriftClass);
 
 		Preconditions.checkNotNull(instance);
@@ -75,7 +63,7 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 			public DeserializationSchema<RowData> createRuntimeDecoder(
 				DynamicTableSource.Context context,
 				DataType producedDataType) {
-				// infer table schema
+				// infer table schema from thrift class
 				final TypeInformation<RowData> rowDataTypeInfo =
 					(TypeInformation<RowData>) context.createTypeInformation(
 						schema.toRowDataType());
@@ -101,8 +89,28 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 	public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(
 		DynamicTableFactory.Context context,
 		ReadableConfig formatOptions) {
-		//TODO: add here
-		return null;
+
+		String thriftClassName = formatOptions.get(ThriftOptions.ThriftClassName);
+		Class<? extends TBase> thriftClass = ThriftRowTranslator.getThriftClass(thriftClassName);
+
+		final TableSchema schema = ThriftRowTranslator.getTableSchema(thriftClass);
+		Boolean skipCorruptedMessage = formatOptions.get(ThriftOptions.skipCorruptedMessage);
+
+		return new EncodingFormat<SerializationSchema<RowData>>() {
+			@Override
+			public SerializationSchema<RowData> createRuntimeEncoder(
+				DynamicTableSink.Context context,
+				DataType consumedDataType) {
+				// inference from thrift class
+				final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
+				return new ThriftSerializationSchema(skipCorruptedMessage, thriftClass, rowType);
+			}
+
+			@Override
+			public ChangelogMode getChangelogMode() {
+				return ChangelogMode.insertOnly();
+			}
+		}
 	}
 
 	/**
@@ -137,6 +145,8 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 	 */
 	@Override
 	public Set<ConfigOption<?>> optionalOptions() {
-		return Collections.emptySet();
+		Set<ConfigOption<?>> options = new HashSet<>();
+		options.add(ThriftOptions.skipCorruptedMessage);
+		return options;
 	}
 }
