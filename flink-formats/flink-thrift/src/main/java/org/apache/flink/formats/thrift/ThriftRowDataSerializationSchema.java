@@ -10,11 +10,14 @@ import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
 
 import org.apache.thrift.TBase;
+import org.apache.thrift.TEnum;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.TSerializer;
+import org.apache.thrift.meta_data.EnumMetaData;
 import org.apache.thrift.meta_data.FieldValueMetaData;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +41,7 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 		this.skipCorruptedMessage = skipCorruptedMessage;
 		this.thriftClass = thriftClass;
 		this.rowType = rowType;
-		this.runtimeConverter = createConverter(rowType, thriftClass);
+		this.runtimeConverter = createConverter(rowType, thriftClass, null);
 		serializer = new TSerializer();
 	}
 
@@ -66,14 +69,14 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 	 * to corresponding {@link TBase}s.
 	 */
 	private interface SerializationRuntimeConverter extends Serializable {
-		Object convert(Object value);
+		Object convert(Object value) throws NoSuchMethodException;
 	}
 
 	/**
 	 * Creates a runtime converter which is null safe.
 	 */
-	private SerializationRuntimeConverter createConverter(LogicalType type, Class<? extends TBase> thriftClass) {
-		return wrapIntoNullableConverter(createNotNullConverter(type, thriftClass));
+	private SerializationRuntimeConverter createConverter(LogicalType type, Class<? extends TBase> thriftClass, Class<? extends TEnum> enumClass) {
+		return wrapIntoNullableConverter(createNotNullConverter(type, thriftClass, enumClass));
 	}
 
 	/**
@@ -82,7 +85,7 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 	 * TODO: ByteBuffer were represented as string need to check thrift type and do ByteBuffer wrap
 	 */
 	private SerializationRuntimeConverter createNotNullConverter(
-		LogicalType type, Class<? extends TBase> thriftClass) {
+		LogicalType type, Class<? extends TBase> thriftClass, Class<? extends TEnum> enumClass) {
 		switch (type.getTypeRoot()) {
 			case NULL:
 				return value -> null;
@@ -93,7 +96,19 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 			case SMALLINT:
 				return value ->(short) value;
 			case INTEGER:
-			    return value -> (int) value;
+			    return value -> {
+			    	if (enumClass != null && thriftClass == null) {
+			    		try {
+							return enumClass.getMethod("findByValue", int.class)
+								.invoke(null, (int) value);
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					}
+					return (int) value;
+				};
 			case BIGINT:
 				return value -> (long) value;
 			case FLOAT:
@@ -113,7 +128,7 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 					ArrayData arrayData = (ArrayData) value;
 					Object[] arr = new Object[((ArrayData) value).size()];
 					final LogicalType elementType = arrayType.getElementType();
-					final SerializationRuntimeConverter elementConverter = createConverter(elementType, thriftClass);
+					final SerializationRuntimeConverter elementConverter = createConverter(elementType, thriftClass, null);
 					for( int i = 0 ; i < ((ArrayData) value).size(); i++) {
 						Object element = ArrayData.get(arrayData, i, elementType);
 						arr[i] = elementConverter.convert(element);
@@ -127,7 +142,7 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 					MapType mapType = (MapType) type;
 					final LogicalType valueType = mapType.getValueType();
 					//TODO: we only support value type
-					final SerializationRuntimeConverter valueConverter = createConverter(valueType, thriftClass);
+					final SerializationRuntimeConverter valueConverter = createConverter(valueType, thriftClass, null);
 					ArrayData keyArray = map.keyArray();
 					ArrayData valueArray = map.valueArray();
 					int numElements = map.size();
@@ -155,8 +170,14 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 
 					final Class[] thriftClasses =
 						ThriftRowTranslator.getSortedFields(thriftClass, null).stream().map(entry ->{
-							FieldValueMetaData metaData = entry.getValue().valueMetaData;
-							return ThriftRowTranslator.getThriftClass(metaData);
+							Class t =  ThriftRowTranslator.getThriftClass(entry.getValue().valueMetaData);
+							return (t != null && !t.isEnum()) ? t : null;
+						}).toArray(Class[]::new);
+
+					final Class[] enumClasses =
+						ThriftRowTranslator.getSortedFields(thriftClass, null).stream().map(entry ->{
+							Class t =  ThriftRowTranslator.getThriftClass(entry.getValue().valueMetaData);
+							return (t != null && t.isEnum()) ? t : null;
 						}).toArray(Class[]::new);
 
 					final int fieldCount = rowType.getFieldCount();
@@ -165,7 +186,7 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 
 					for (int i = 0; i < fieldCount; i++) {
 						Object field = RowData.get(row, i, fieldTypes[i]);
-						SerializationRuntimeConverter converter = createConverter(fieldTypes[i], thriftClasses[i]);
+						SerializationRuntimeConverter converter = createConverter(fieldTypes[i], thriftClasses[i], enumClasses[i]);
 						tbase.setFieldValue(fields[i], converter.convert(field));
 					}
 					return tbase;

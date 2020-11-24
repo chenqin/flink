@@ -2,8 +2,11 @@ package org.apache.flink.formats.thrift;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
+
+import org.apache.flink.types.RowKind;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TSerializer;
@@ -42,5 +45,22 @@ public class ThriftRowDataDeserializationSchemaTest {
 		Assert.assertTrue(result.getInt(0) == 0);
 		Assert.assertTrue(result.getInt(1) == 1);
 		Assert.assertTrue(result.getInt(2) == 1);
+	}
+
+	@Test
+	public void testThriftRowDataSerialize() throws Exception {
+		GenericRowData r = new GenericRowData(4);
+		r.setField(0, 0);
+		r.setField(1, 1);
+		r.setField(2, 0);
+		r.setField(3, "hi");
+		final TableSchema schema = ThriftRowTranslator.getTableSchema(ThriftRowTranslator.getThriftClass(
+			"org.apache.flink.formats.thrift.Work"));
+		final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
+		ThriftRowDataSerializationSchema serializationSchema =
+			new ThriftRowDataSerializationSchema(false, ThriftRowTranslator.getThriftClass(
+			"org.apache.flink.formats.thrift.Work"), rowType);
+
+		serializationSchema.serialize(r);
 	}
 }
