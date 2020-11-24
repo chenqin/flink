@@ -32,9 +32,6 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 
 	public static final String IDENTIFIER = "thrift";
 
-	private static TableSchema inferSchema(String thriftClassName) {
-
-	}
 	/**
 	 * Creates a format from the given context and format options.
 	 *
@@ -103,14 +100,14 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 				DataType consumedDataType) {
 				// inference from thrift class
 				final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
-				return new ThriftSerializationSchema(skipCorruptedMessage, thriftClass, rowType);
+				return new ThriftRowDataSerializationSchema(skipCorruptedMessage, thriftClass, rowType);
 			}
 
 			@Override
 			public ChangelogMode getChangelogMode() {
 				return ChangelogMode.insertOnly();
 			}
-		}
+		};
 	}
 
 	/**

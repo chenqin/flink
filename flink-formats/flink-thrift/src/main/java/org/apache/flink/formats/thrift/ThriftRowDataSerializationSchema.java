@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThriftSerializationSchema implements SerializationSchema<RowData> {
+public class ThriftRowDataSerializationSchema implements SerializationSchema<RowData> {
 	/** return null if not able to deserialize message **/
 	private Boolean skipCorruptedMessage;
 	/** TypeInformation of the produced {@link RowData}. **/
@@ -31,7 +31,7 @@ public class ThriftSerializationSchema implements SerializationSchema<RowData> {
 
 	private final TSerializer serializer;
 
-	public ThriftSerializationSchema(
+	public ThriftRowDataSerializationSchema(
 		Boolean skipCorruptedMessage,
 		Class<? extends TBase> thriftClass,
 		RowType rowType) {
@@ -82,8 +82,7 @@ public class ThriftSerializationSchema implements SerializationSchema<RowData> {
 	 * TODO: ByteBuffer were represented as string need to check thrift type and do ByteBuffer wrap
 	 */
 	private SerializationRuntimeConverter createNotNullConverter(
-		LogicalType type,
-		Class<? extends TBase> thriftClass) {
+		LogicalType type, Class<? extends TBase> thriftClass) {
 		switch (type.getTypeRoot()) {
 			case NULL:
 				return value -> null;

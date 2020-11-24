@@ -42,8 +42,11 @@ public class ThriftRowTranslator {
   private static final String ver = "0.25";
   private static final Logger LOG = LoggerFactory.getLogger(ThriftRowTranslator.class);
 
-	public static Class<? extends TBase> getThriftClass(FieldValueMetaData metaData) {
+	public static Class<?> getThriftClass(FieldValueMetaData metaData) {
 		switch (metaData.type) {
+			case TType.ENUM:
+				EnumMetaData enumMetaData = (EnumMetaData) metaData;
+				return enumMetaData.enumClass;
 			case TType.LIST:
 				ListMetaData listMetaData = (ListMetaData) metaData;
 				return getThriftClass(listMetaData.elemMetaData);
@@ -57,6 +60,15 @@ public class ThriftRowTranslator {
 			case TType.STRUCT:
 				StructMetaData structMetaData = (StructMetaData) metaData;
 				return structMetaData.structClass;
+			default:
+				return null;
+		}
+	}
+
+	public static EnumMetaData getEnum(FieldValueMetaData metaData) {
+		switch (metaData.type) {
+			case TType.ENUM:
+					return (EnumMetaData) metaData;
 			default:
 				return null;
 		}
