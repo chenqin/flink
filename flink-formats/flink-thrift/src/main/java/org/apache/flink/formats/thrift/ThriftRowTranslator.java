@@ -8,6 +8,7 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
 
@@ -249,7 +250,7 @@ public class ThriftRowTranslator {
       case TType.DOUBLE:
         return (double) 0;
       case TType.STRING:
-        return "";
+        return StringData.fromString("");
       case TType.I64:
         return (long) 0;
       case TType.I16:
@@ -277,9 +278,9 @@ public class ThriftRowTranslator {
         return val;
       case TType.STRING:
         if (val instanceof byte[]) {
-          return new String((byte[]) val);
+          return StringData.fromBytes((byte[]) val);
         } else {
-          return val;
+          return StringData.fromString((String) val);
         }
       case TType.I64:
         return (long) val;

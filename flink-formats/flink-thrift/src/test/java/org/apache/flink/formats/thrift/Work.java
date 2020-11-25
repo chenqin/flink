@@ -14,12 +14,17 @@ import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.EncodingUtils;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
 
 public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.io.Serializable, Cloneable, Comparable<Work> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Work");
@@ -28,6 +33,15 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
   private static final org.apache.thrift.protocol.TField NUM2_FIELD_DESC = new org.apache.thrift.protocol.TField("num2", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField OP_FIELD_DESC = new org.apache.thrift.protocol.TField("op", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField COMMENT_FIELD_DESC = new org.apache.thrift.protocol.TField("comment", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField BUFFER_FIELD_DESC = new org.apache.thrift.protocol.TField("buffer", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField NUM3_FIELD_DESC = new org.apache.thrift.protocol.TField("num3", org.apache.thrift.protocol.TType.DOUBLE, (short)6);
+  private static final org.apache.thrift.protocol.TField SIGN1_FIELD_DESC = new org.apache.thrift.protocol.TField("sign1", org.apache.thrift.protocol.TType.BOOL, (short)7);
+  private static final org.apache.thrift.protocol.TField SIGN2_FIELD_DESC = new org.apache.thrift.protocol.TField("sign2", org.apache.thrift.protocol.TType.BYTE, (short)8);
+  private static final org.apache.thrift.protocol.TField NUM4_FIELD_DESC = new org.apache.thrift.protocol.TField("num4", org.apache.thrift.protocol.TType.I16, (short)9);
+  private static final org.apache.thrift.protocol.TField NUM5_FIELD_DESC = new org.apache.thrift.protocol.TField("num5", org.apache.thrift.protocol.TType.I64, (short)10);
+  private static final org.apache.thrift.protocol.TField OPS_FIELD_DESC = new org.apache.thrift.protocol.TField("ops", org.apache.thrift.protocol.TType.LIST, (short)11);
+  private static final org.apache.thrift.protocol.TField ITEMS_FIELD_DESC = new org.apache.thrift.protocol.TField("items", org.apache.thrift.protocol.TType.SET, (short)12);
+  private static final org.apache.thrift.protocol.TField INDEX_FIELD_DESC = new org.apache.thrift.protocol.TField("index", org.apache.thrift.protocol.TType.MAP, (short)13);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,6 +57,15 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
    */
   public Operation op; // required
   public String comment; // optional
+  public ByteBuffer buffer; // optional
+  public double num3; // required
+  public boolean sign1; // required
+  public byte sign2; // required
+  public short num4; // required
+  public long num5; // required
+  public List<Operation> ops; // required
+  public Set<Item> items; // required
+  public Map<String,Item> index; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -53,7 +76,16 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
      * @see Operation
      */
     OP((short)3, "op"),
-    COMMENT((short)4, "comment");
+    COMMENT((short)4, "comment"),
+    BUFFER((short)5, "buffer"),
+    NUM3((short)6, "num3"),
+    SIGN1((short)7, "sign1"),
+    SIGN2((short)8, "sign2"),
+    NUM4((short)9, "num4"),
+    NUM5((short)10, "num5"),
+    OPS((short)11, "ops"),
+    ITEMS((short)12, "items"),
+    INDEX((short)13, "index");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -76,6 +108,24 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
           return OP;
         case 4: // COMMENT
           return COMMENT;
+        case 5: // BUFFER
+          return BUFFER;
+        case 6: // NUM3
+          return NUM3;
+        case 7: // SIGN1
+          return SIGN1;
+        case 8: // SIGN2
+          return SIGN2;
+        case 9: // NUM4
+          return NUM4;
+        case 10: // NUM5
+          return NUM5;
+        case 11: // OPS
+          return OPS;
+        case 12: // ITEMS
+          return ITEMS;
+        case 13: // INDEX
+          return INDEX;
         default:
           return null;
       }
@@ -118,8 +168,13 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
   // isset id assignments
   private static final int __NUM1_ISSET_ID = 0;
   private static final int __NUM2_ISSET_ID = 1;
+  private static final int __NUM3_ISSET_ID = 2;
+  private static final int __SIGN1_ISSET_ID = 3;
+  private static final int __SIGN2_ISSET_ID = 4;
+  private static final int __NUM4_ISSET_ID = 5;
+  private static final int __NUM5_ISSET_ID = 6;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.COMMENT};
+  private _Fields optionals[] = {_Fields.COMMENT,_Fields.BUFFER};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -131,6 +186,28 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, Operation.class)));
     tmpMap.put(_Fields.COMMENT, new org.apache.thrift.meta_data.FieldMetaData("comment", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.BUFFER, new org.apache.thrift.meta_data.FieldMetaData("buffer", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    tmpMap.put(_Fields.NUM3, new org.apache.thrift.meta_data.FieldMetaData("num3", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
+    tmpMap.put(_Fields.SIGN1, new org.apache.thrift.meta_data.FieldMetaData("sign1", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.SIGN2, new org.apache.thrift.meta_data.FieldMetaData("sign2", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+    tmpMap.put(_Fields.NUM4, new org.apache.thrift.meta_data.FieldMetaData("num4", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
+    tmpMap.put(_Fields.NUM5, new org.apache.thrift.meta_data.FieldMetaData("num5", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+    tmpMap.put(_Fields.OPS, new org.apache.thrift.meta_data.FieldMetaData("ops", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, Operation.class))));
+    tmpMap.put(_Fields.ITEMS, new org.apache.thrift.meta_data.FieldMetaData("items", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.SetMetaData(org.apache.thrift.protocol.TType.SET, 
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Item.class))));
+    tmpMap.put(_Fields.INDEX, new org.apache.thrift.meta_data.FieldMetaData("index", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Item.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Work.class, metaDataMap);
   }
@@ -138,12 +215,24 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
   public Work() {
     this.num1 = 0;
 
+    this.num3 = (double)0;
+
+    this.sign1 = false;
+
   }
 
   public Work(
     int num1,
     int num2,
-    Operation op)
+    Operation op,
+    double num3,
+    boolean sign1,
+    byte sign2,
+    short num4,
+    long num5,
+    List<Operation> ops,
+    Set<Item> items,
+    Map<String,Item> index)
   {
     this();
     this.num1 = num1;
@@ -151,6 +240,19 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
     this.num2 = num2;
     setNum2IsSet(true);
     this.op = op;
+    this.num3 = num3;
+    setNum3IsSet(true);
+    this.sign1 = sign1;
+    setSign1IsSet(true);
+    this.sign2 = sign2;
+    setSign2IsSet(true);
+    this.num4 = num4;
+    setNum4IsSet(true);
+    this.num5 = num5;
+    setNum5IsSet(true);
+    this.ops = ops;
+    this.items = items;
+    this.index = index;
   }
 
   /**
@@ -166,6 +268,44 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
     if (other.isSetComment()) {
       this.comment = other.comment;
     }
+    if (other.isSetBuffer()) {
+      this.buffer = org.apache.thrift.TBaseHelper.copyBinary(other.buffer);
+;
+    }
+    this.num3 = other.num3;
+    this.sign1 = other.sign1;
+    this.sign2 = other.sign2;
+    this.num4 = other.num4;
+    this.num5 = other.num5;
+    if (other.isSetOps()) {
+      List<Operation> __this__ops = new ArrayList<Operation>(other.ops.size());
+      for (Operation other_element : other.ops) {
+        __this__ops.add(other_element);
+      }
+      this.ops = __this__ops;
+    }
+    if (other.isSetItems()) {
+      Set<Item> __this__items = new HashSet<Item>(other.items.size());
+      for (Item other_element : other.items) {
+        __this__items.add(new Item(other_element));
+      }
+      this.items = __this__items;
+    }
+    if (other.isSetIndex()) {
+      Map<String,Item> __this__index = new HashMap<String,Item>(other.index.size());
+      for (Map.Entry<String, Item> other_element : other.index.entrySet()) {
+
+        String other_element_key = other_element.getKey();
+        Item other_element_value = other_element.getValue();
+
+        String __this__index_copy_key = other_element_key;
+
+        Item __this__index_copy_value = new Item(other_element_value);
+
+        __this__index.put(__this__index_copy_key, __this__index_copy_value);
+      }
+      this.index = __this__index;
+    }
   }
 
   public Work deepCopy() {
@@ -180,6 +320,20 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
     this.num2 = 0;
     this.op = null;
     this.comment = null;
+    this.buffer = null;
+    this.num3 = (double)0;
+
+    this.sign1 = false;
+
+    setSign2IsSet(false);
+    this.sign2 = 0;
+    setNum4IsSet(false);
+    this.num4 = 0;
+    setNum5IsSet(false);
+    this.num5 = 0;
+    this.ops = null;
+    this.items = null;
+    this.index = null;
   }
 
   public int getNum1() {
@@ -284,6 +438,268 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
     }
   }
 
+  public byte[] getBuffer() {
+    setBuffer(org.apache.thrift.TBaseHelper.rightSize(buffer));
+    return buffer == null ? null : buffer.array();
+  }
+
+  public ByteBuffer bufferForBuffer() {
+    return buffer;
+  }
+
+  public Work setBuffer(byte[] buffer) {
+    setBuffer(buffer == null ? (ByteBuffer)null : ByteBuffer.wrap(buffer));
+    return this;
+  }
+
+  public Work setBuffer(ByteBuffer buffer) {
+    this.buffer = buffer;
+    return this;
+  }
+
+  public void unsetBuffer() {
+    this.buffer = null;
+  }
+
+  /** Returns true if field buffer is set (has been assigned a value) and false otherwise */
+  public boolean isSetBuffer() {
+    return this.buffer != null;
+  }
+
+  public void setBufferIsSet(boolean value) {
+    if (!value) {
+      this.buffer = null;
+    }
+  }
+
+  public double getNum3() {
+    return this.num3;
+  }
+
+  public Work setNum3(double num3) {
+    this.num3 = num3;
+    setNum3IsSet(true);
+    return this;
+  }
+
+  public void unsetNum3() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __NUM3_ISSET_ID);
+  }
+
+  /** Returns true if field num3 is set (has been assigned a value) and false otherwise */
+  public boolean isSetNum3() {
+    return EncodingUtils.testBit(__isset_bitfield, __NUM3_ISSET_ID);
+  }
+
+  public void setNum3IsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NUM3_ISSET_ID, value);
+  }
+
+  public boolean isSign1() {
+    return this.sign1;
+  }
+
+  public Work setSign1(boolean sign1) {
+    this.sign1 = sign1;
+    setSign1IsSet(true);
+    return this;
+  }
+
+  public void unsetSign1() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SIGN1_ISSET_ID);
+  }
+
+  /** Returns true if field sign1 is set (has been assigned a value) and false otherwise */
+  public boolean isSetSign1() {
+    return EncodingUtils.testBit(__isset_bitfield, __SIGN1_ISSET_ID);
+  }
+
+  public void setSign1IsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SIGN1_ISSET_ID, value);
+  }
+
+  public byte getSign2() {
+    return this.sign2;
+  }
+
+  public Work setSign2(byte sign2) {
+    this.sign2 = sign2;
+    setSign2IsSet(true);
+    return this;
+  }
+
+  public void unsetSign2() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SIGN2_ISSET_ID);
+  }
+
+  /** Returns true if field sign2 is set (has been assigned a value) and false otherwise */
+  public boolean isSetSign2() {
+    return EncodingUtils.testBit(__isset_bitfield, __SIGN2_ISSET_ID);
+  }
+
+  public void setSign2IsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SIGN2_ISSET_ID, value);
+  }
+
+  public short getNum4() {
+    return this.num4;
+  }
+
+  public Work setNum4(short num4) {
+    this.num4 = num4;
+    setNum4IsSet(true);
+    return this;
+  }
+
+  public void unsetNum4() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __NUM4_ISSET_ID);
+  }
+
+  /** Returns true if field num4 is set (has been assigned a value) and false otherwise */
+  public boolean isSetNum4() {
+    return EncodingUtils.testBit(__isset_bitfield, __NUM4_ISSET_ID);
+  }
+
+  public void setNum4IsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NUM4_ISSET_ID, value);
+  }
+
+  public long getNum5() {
+    return this.num5;
+  }
+
+  public Work setNum5(long num5) {
+    this.num5 = num5;
+    setNum5IsSet(true);
+    return this;
+  }
+
+  public void unsetNum5() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __NUM5_ISSET_ID);
+  }
+
+  /** Returns true if field num5 is set (has been assigned a value) and false otherwise */
+  public boolean isSetNum5() {
+    return EncodingUtils.testBit(__isset_bitfield, __NUM5_ISSET_ID);
+  }
+
+  public void setNum5IsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NUM5_ISSET_ID, value);
+  }
+
+  public int getOpsSize() {
+    return (this.ops == null) ? 0 : this.ops.size();
+  }
+
+  public java.util.Iterator<Operation> getOpsIterator() {
+    return (this.ops == null) ? null : this.ops.iterator();
+  }
+
+  public void addToOps(Operation elem) {
+    if (this.ops == null) {
+      this.ops = new ArrayList<Operation>();
+    }
+    this.ops.add(elem);
+  }
+
+  public List<Operation> getOps() {
+    return this.ops;
+  }
+
+  public Work setOps(List<Operation> ops) {
+    this.ops = ops;
+    return this;
+  }
+
+  public void unsetOps() {
+    this.ops = null;
+  }
+
+  /** Returns true if field ops is set (has been assigned a value) and false otherwise */
+  public boolean isSetOps() {
+    return this.ops != null;
+  }
+
+  public void setOpsIsSet(boolean value) {
+    if (!value) {
+      this.ops = null;
+    }
+  }
+
+  public int getItemsSize() {
+    return (this.items == null) ? 0 : this.items.size();
+  }
+
+  public java.util.Iterator<Item> getItemsIterator() {
+    return (this.items == null) ? null : this.items.iterator();
+  }
+
+  public void addToItems(Item elem) {
+    if (this.items == null) {
+      this.items = new HashSet<Item>();
+    }
+    this.items.add(elem);
+  }
+
+  public Set<Item> getItems() {
+    return this.items;
+  }
+
+  public Work setItems(Set<Item> items) {
+    this.items = items;
+    return this;
+  }
+
+  public void unsetItems() {
+    this.items = null;
+  }
+
+  /** Returns true if field items is set (has been assigned a value) and false otherwise */
+  public boolean isSetItems() {
+    return this.items != null;
+  }
+
+  public void setItemsIsSet(boolean value) {
+    if (!value) {
+      this.items = null;
+    }
+  }
+
+  public int getIndexSize() {
+    return (this.index == null) ? 0 : this.index.size();
+  }
+
+  public void putToIndex(String key, Item val) {
+    if (this.index == null) {
+      this.index = new HashMap<String,Item>();
+    }
+    this.index.put(key, val);
+  }
+
+  public Map<String,Item> getIndex() {
+    return this.index;
+  }
+
+  public Work setIndex(Map<String,Item> index) {
+    this.index = index;
+    return this;
+  }
+
+  public void unsetIndex() {
+    this.index = null;
+  }
+
+  /** Returns true if field index is set (has been assigned a value) and false otherwise */
+  public boolean isSetIndex() {
+    return this.index != null;
+  }
+
+  public void setIndexIsSet(boolean value) {
+    if (!value) {
+      this.index = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case NUM1:
@@ -318,6 +734,78 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       }
       break;
 
+    case BUFFER:
+      if (value == null) {
+        unsetBuffer();
+      } else {
+        setBuffer((ByteBuffer)value);
+      }
+      break;
+
+    case NUM3:
+      if (value == null) {
+        unsetNum3();
+      } else {
+        setNum3((Double)value);
+      }
+      break;
+
+    case SIGN1:
+      if (value == null) {
+        unsetSign1();
+      } else {
+        setSign1((Boolean)value);
+      }
+      break;
+
+    case SIGN2:
+      if (value == null) {
+        unsetSign2();
+      } else {
+        setSign2((Byte)value);
+      }
+      break;
+
+    case NUM4:
+      if (value == null) {
+        unsetNum4();
+      } else {
+        setNum4((Short)value);
+      }
+      break;
+
+    case NUM5:
+      if (value == null) {
+        unsetNum5();
+      } else {
+        setNum5((Long)value);
+      }
+      break;
+
+    case OPS:
+      if (value == null) {
+        unsetOps();
+      } else {
+        setOps((List<Operation>)value);
+      }
+      break;
+
+    case ITEMS:
+      if (value == null) {
+        unsetItems();
+      } else {
+        setItems((Set<Item>)value);
+      }
+      break;
+
+    case INDEX:
+      if (value == null) {
+        unsetIndex();
+      } else {
+        setIndex((Map<String,Item>)value);
+      }
+      break;
+
     }
   }
 
@@ -334,6 +822,33 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
 
     case COMMENT:
       return getComment();
+
+    case BUFFER:
+      return getBuffer();
+
+    case NUM3:
+      return Double.valueOf(getNum3());
+
+    case SIGN1:
+      return Boolean.valueOf(isSign1());
+
+    case SIGN2:
+      return Byte.valueOf(getSign2());
+
+    case NUM4:
+      return Short.valueOf(getNum4());
+
+    case NUM5:
+      return Long.valueOf(getNum5());
+
+    case OPS:
+      return getOps();
+
+    case ITEMS:
+      return getItems();
+
+    case INDEX:
+      return getIndex();
 
     }
     throw new IllegalStateException();
@@ -354,6 +869,24 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       return isSetOp();
     case COMMENT:
       return isSetComment();
+    case BUFFER:
+      return isSetBuffer();
+    case NUM3:
+      return isSetNum3();
+    case SIGN1:
+      return isSetSign1();
+    case SIGN2:
+      return isSetSign2();
+    case NUM4:
+      return isSetNum4();
+    case NUM5:
+      return isSetNum5();
+    case OPS:
+      return isSetOps();
+    case ITEMS:
+      return isSetItems();
+    case INDEX:
+      return isSetIndex();
     }
     throw new IllegalStateException();
   }
@@ -404,6 +937,87 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       if (!(this_present_comment && that_present_comment))
         return false;
       if (!this.comment.equals(that.comment))
+        return false;
+    }
+
+    boolean this_present_buffer = true && this.isSetBuffer();
+    boolean that_present_buffer = true && that.isSetBuffer();
+    if (this_present_buffer || that_present_buffer) {
+      if (!(this_present_buffer && that_present_buffer))
+        return false;
+      if (!this.buffer.equals(that.buffer))
+        return false;
+    }
+
+    boolean this_present_num3 = true;
+    boolean that_present_num3 = true;
+    if (this_present_num3 || that_present_num3) {
+      if (!(this_present_num3 && that_present_num3))
+        return false;
+      if (this.num3 != that.num3)
+        return false;
+    }
+
+    boolean this_present_sign1 = true;
+    boolean that_present_sign1 = true;
+    if (this_present_sign1 || that_present_sign1) {
+      if (!(this_present_sign1 && that_present_sign1))
+        return false;
+      if (this.sign1 != that.sign1)
+        return false;
+    }
+
+    boolean this_present_sign2 = true;
+    boolean that_present_sign2 = true;
+    if (this_present_sign2 || that_present_sign2) {
+      if (!(this_present_sign2 && that_present_sign2))
+        return false;
+      if (this.sign2 != that.sign2)
+        return false;
+    }
+
+    boolean this_present_num4 = true;
+    boolean that_present_num4 = true;
+    if (this_present_num4 || that_present_num4) {
+      if (!(this_present_num4 && that_present_num4))
+        return false;
+      if (this.num4 != that.num4)
+        return false;
+    }
+
+    boolean this_present_num5 = true;
+    boolean that_present_num5 = true;
+    if (this_present_num5 || that_present_num5) {
+      if (!(this_present_num5 && that_present_num5))
+        return false;
+      if (this.num5 != that.num5)
+        return false;
+    }
+
+    boolean this_present_ops = true && this.isSetOps();
+    boolean that_present_ops = true && that.isSetOps();
+    if (this_present_ops || that_present_ops) {
+      if (!(this_present_ops && that_present_ops))
+        return false;
+      if (!this.ops.equals(that.ops))
+        return false;
+    }
+
+    boolean this_present_items = true && this.isSetItems();
+    boolean that_present_items = true && that.isSetItems();
+    if (this_present_items || that_present_items) {
+      if (!(this_present_items && that_present_items))
+        return false;
+      if (!this.items.equals(that.items))
+        return false;
+    }
+
+    boolean this_present_index = true && this.isSetIndex();
+    boolean that_present_index = true && that.isSetIndex();
+    if (this_present_index || that_present_index) {
+      if (!(this_present_index && that_present_index))
+        return false;
+      if (!this.index.equals(that.index))
         return false;
     }
 
@@ -463,6 +1077,96 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetBuffer()).compareTo(other.isSetBuffer());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetBuffer()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.buffer, other.buffer);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetNum3()).compareTo(other.isSetNum3());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetNum3()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.num3, other.num3);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSign1()).compareTo(other.isSetSign1());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSign1()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sign1, other.sign1);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSign2()).compareTo(other.isSetSign2());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSign2()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sign2, other.sign2);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetNum4()).compareTo(other.isSetNum4());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetNum4()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.num4, other.num4);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetNum5()).compareTo(other.isSetNum5());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetNum5()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.num5, other.num5);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetOps()).compareTo(other.isSetOps());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetOps()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ops, other.ops);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetItems()).compareTo(other.isSetItems());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetItems()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.items, other.items);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetIndex()).compareTo(other.isSetIndex());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetIndex()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.index, other.index);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -508,6 +1212,60 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       }
       first = false;
     }
+    if (isSetBuffer()) {
+      if (!first) sb.append(", ");
+      sb.append("buffer:");
+      if (this.buffer == null) {
+        sb.append("null");
+      } else {
+        org.apache.thrift.TBaseHelper.toString(this.buffer, sb);
+      }
+      first = false;
+    }
+    if (!first) sb.append(", ");
+    sb.append("num3:");
+    sb.append(this.num3);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("sign1:");
+    sb.append(this.sign1);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("sign2:");
+    sb.append(this.sign2);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("num4:");
+    sb.append(this.num4);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("num5:");
+    sb.append(this.num5);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("ops:");
+    if (this.ops == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.ops);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("items:");
+    if (this.items == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.items);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("index:");
+    if (this.index == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.index);
+    }
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -585,6 +1343,112 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 5: // BUFFER
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.buffer = iprot.readBinary();
+              struct.setBufferIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // NUM3
+            if (schemeField.type == org.apache.thrift.protocol.TType.DOUBLE) {
+              struct.num3 = iprot.readDouble();
+              struct.setNum3IsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 7: // SIGN1
+            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+              struct.sign1 = iprot.readBool();
+              struct.setSign1IsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 8: // SIGN2
+            if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
+              struct.sign2 = iprot.readByte();
+              struct.setSign2IsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 9: // NUM4
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.num4 = iprot.readI16();
+              struct.setNum4IsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 10: // NUM5
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.num5 = iprot.readI64();
+              struct.setNum5IsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 11: // OPS
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list10 = iprot.readListBegin();
+                struct.ops = new ArrayList<Operation>(_list10.size);
+                for (int _i11 = 0; _i11 < _list10.size; ++_i11)
+                {
+                  Operation _elem12;
+                  _elem12 = Operation.findByValue(iprot.readI32());
+                  struct.ops.add(_elem12);
+                }
+                iprot.readListEnd();
+              }
+              struct.setOpsIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 12: // ITEMS
+            if (schemeField.type == org.apache.thrift.protocol.TType.SET) {
+              {
+                org.apache.thrift.protocol.TSet _set13 = iprot.readSetBegin();
+                struct.items = new HashSet<Item>(2*_set13.size);
+                for (int _i14 = 0; _i14 < _set13.size; ++_i14)
+                {
+                  Item _elem15;
+                  _elem15 = new Item();
+                  _elem15.read(iprot);
+                  struct.items.add(_elem15);
+                }
+                iprot.readSetEnd();
+              }
+              struct.setItemsIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 13: // INDEX
+            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+              {
+                org.apache.thrift.protocol.TMap _map16 = iprot.readMapBegin();
+                struct.index = new HashMap<String,Item>(2*_map16.size);
+                for (int _i17 = 0; _i17 < _map16.size; ++_i17)
+                {
+                  String _key18;
+                  Item _val19;
+                  _key18 = iprot.readString();
+                  _val19 = new Item();
+                  _val19.read(iprot);
+                  struct.index.put(_key18, _val19);
+                }
+                iprot.readMapEnd();
+              }
+              struct.setIndexIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -618,6 +1482,65 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
           oprot.writeFieldEnd();
         }
       }
+      if (struct.buffer != null) {
+        if (struct.isSetBuffer()) {
+          oprot.writeFieldBegin(BUFFER_FIELD_DESC);
+          oprot.writeBinary(struct.buffer);
+          oprot.writeFieldEnd();
+        }
+      }
+      oprot.writeFieldBegin(NUM3_FIELD_DESC);
+      oprot.writeDouble(struct.num3);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(SIGN1_FIELD_DESC);
+      oprot.writeBool(struct.sign1);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(SIGN2_FIELD_DESC);
+      oprot.writeByte(struct.sign2);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(NUM4_FIELD_DESC);
+      oprot.writeI16(struct.num4);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(NUM5_FIELD_DESC);
+      oprot.writeI64(struct.num5);
+      oprot.writeFieldEnd();
+      if (struct.ops != null) {
+        oprot.writeFieldBegin(OPS_FIELD_DESC);
+        {
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, struct.ops.size()));
+          for (Operation _iter20 : struct.ops)
+          {
+            oprot.writeI32(_iter20.getValue());
+          }
+          oprot.writeListEnd();
+        }
+        oprot.writeFieldEnd();
+      }
+      if (struct.items != null) {
+        oprot.writeFieldBegin(ITEMS_FIELD_DESC);
+        {
+          oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, struct.items.size()));
+          for (Item _iter21 : struct.items)
+          {
+            _iter21.write(oprot);
+          }
+          oprot.writeSetEnd();
+        }
+        oprot.writeFieldEnd();
+      }
+      if (struct.index != null) {
+        oprot.writeFieldBegin(INDEX_FIELD_DESC);
+        {
+          oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, struct.index.size()));
+          for (Map.Entry<String, Item> _iter22 : struct.index.entrySet())
+          {
+            oprot.writeString(_iter22.getKey());
+            _iter22.getValue().write(oprot);
+          }
+          oprot.writeMapEnd();
+        }
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -648,7 +1571,34 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       if (struct.isSetComment()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetBuffer()) {
+        optionals.set(4);
+      }
+      if (struct.isSetNum3()) {
+        optionals.set(5);
+      }
+      if (struct.isSetSign1()) {
+        optionals.set(6);
+      }
+      if (struct.isSetSign2()) {
+        optionals.set(7);
+      }
+      if (struct.isSetNum4()) {
+        optionals.set(8);
+      }
+      if (struct.isSetNum5()) {
+        optionals.set(9);
+      }
+      if (struct.isSetOps()) {
+        optionals.set(10);
+      }
+      if (struct.isSetItems()) {
+        optionals.set(11);
+      }
+      if (struct.isSetIndex()) {
+        optionals.set(12);
+      }
+      oprot.writeBitSet(optionals, 13);
       if (struct.isSetNum1()) {
         oprot.writeI32(struct.num1);
       }
@@ -661,12 +1611,58 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       if (struct.isSetComment()) {
         oprot.writeString(struct.comment);
       }
+      if (struct.isSetBuffer()) {
+        oprot.writeBinary(struct.buffer);
+      }
+      if (struct.isSetNum3()) {
+        oprot.writeDouble(struct.num3);
+      }
+      if (struct.isSetSign1()) {
+        oprot.writeBool(struct.sign1);
+      }
+      if (struct.isSetSign2()) {
+        oprot.writeByte(struct.sign2);
+      }
+      if (struct.isSetNum4()) {
+        oprot.writeI16(struct.num4);
+      }
+      if (struct.isSetNum5()) {
+        oprot.writeI64(struct.num5);
+      }
+      if (struct.isSetOps()) {
+        {
+          oprot.writeI32(struct.ops.size());
+          for (Operation _iter23 : struct.ops)
+          {
+            oprot.writeI32(_iter23.getValue());
+          }
+        }
+      }
+      if (struct.isSetItems()) {
+        {
+          oprot.writeI32(struct.items.size());
+          for (Item _iter24 : struct.items)
+          {
+            _iter24.write(oprot);
+          }
+        }
+      }
+      if (struct.isSetIndex()) {
+        {
+          oprot.writeI32(struct.index.size());
+          for (Map.Entry<String, Item> _iter25 : struct.index.entrySet())
+          {
+            oprot.writeString(_iter25.getKey());
+            _iter25.getValue().write(oprot);
+          }
+        }
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Work struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(13);
       if (incoming.get(0)) {
         struct.num1 = iprot.readI32();
         struct.setNum1IsSet(true);
@@ -682,6 +1678,73 @@ public class Work implements org.apache.thrift.TBase<Work, Work._Fields>, java.i
       if (incoming.get(3)) {
         struct.comment = iprot.readString();
         struct.setCommentIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.buffer = iprot.readBinary();
+        struct.setBufferIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.num3 = iprot.readDouble();
+        struct.setNum3IsSet(true);
+      }
+      if (incoming.get(6)) {
+        struct.sign1 = iprot.readBool();
+        struct.setSign1IsSet(true);
+      }
+      if (incoming.get(7)) {
+        struct.sign2 = iprot.readByte();
+        struct.setSign2IsSet(true);
+      }
+      if (incoming.get(8)) {
+        struct.num4 = iprot.readI16();
+        struct.setNum4IsSet(true);
+      }
+      if (incoming.get(9)) {
+        struct.num5 = iprot.readI64();
+        struct.setNum5IsSet(true);
+      }
+      if (incoming.get(10)) {
+        {
+          org.apache.thrift.protocol.TList _list26 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.I32, iprot.readI32());
+          struct.ops = new ArrayList<Operation>(_list26.size);
+          for (int _i27 = 0; _i27 < _list26.size; ++_i27)
+          {
+            Operation _elem28;
+            _elem28 = Operation.findByValue(iprot.readI32());
+            struct.ops.add(_elem28);
+          }
+        }
+        struct.setOpsIsSet(true);
+      }
+      if (incoming.get(11)) {
+        {
+          org.apache.thrift.protocol.TSet _set29 = new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.items = new HashSet<Item>(2*_set29.size);
+          for (int _i30 = 0; _i30 < _set29.size; ++_i30)
+          {
+            Item _elem31;
+            _elem31 = new Item();
+            _elem31.read(iprot);
+            struct.items.add(_elem31);
+          }
+        }
+        struct.setItemsIsSet(true);
+      }
+      if (incoming.get(12)) {
+        {
+          org.apache.thrift.protocol.TMap _map32 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.index = new HashMap<String,Item>(2*_map32.size);
+          for (int _i33 = 0; _i33 < _map32.size; ++_i33)
+          {
+            String _key34;
+            Item _val35;
+            _key34 = iprot.readString();
+            _val35 = new Item();
+            _val35.read(iprot);
+            struct.index.put(_key34, _val35);
+          }
+        }
+        struct.setIndexIsSet(true);
       }
     }
   }
