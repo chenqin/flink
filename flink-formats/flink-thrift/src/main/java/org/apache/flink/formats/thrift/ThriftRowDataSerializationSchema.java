@@ -16,13 +16,20 @@ import org.apache.thrift.meta_data.EnumMetaData;
 import org.apache.thrift.meta_data.FieldValueMetaData;
 import org.apache.thrift.meta_data.ListMetaData;
 import org.apache.thrift.meta_data.MapMetaData;
+import org.apache.thrift.meta_data.SetMetaData;
+import org.apache.thrift.meta_data.StructMetaData;
 import org.apache.thrift.protocol.TType;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ThriftRowDataSerializationSchema implements SerializationSchema<RowData> {
 	/** return null if not able to deserialize message **/
@@ -144,15 +151,32 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 				return value -> {
 					ArrayType arrayType = (ArrayType) type;
 					ArrayData arrayData = (ArrayData) value;
-					Object[] arr = new Object[((ArrayData) value).size()];
 					final LogicalType elementType = arrayType.getElementType();
-					ListMetaData listMetaData = (ListMetaData) metaData;
-					final SerializationRuntimeConverter valueConverter = createConverter(elementType, listMetaData.elemMetaData);
-					for( int i = 0 ; i < ((ArrayData) value).size(); i++) {
-						Object element = ArrayData.get(arrayData, i, elementType);
-						arr[i] = valueConverter.convert(element);
+					if(metaData instanceof ListMetaData) {
+						List list = new ArrayList<Object>(((ArrayData) value).size());
+						ListMetaData listMetaData = (ListMetaData) metaData;
+						final SerializationRuntimeConverter valueConverter = createConverter(
+							elementType,
+							listMetaData.elemMetaData);
+						for (int i = 0; i < ((ArrayData) value).size(); i++) {
+							Object element = ArrayData.get(arrayData, i, elementType);
+							list.add(valueConverter.convert(element));
+						}
+						return list;
+					} else if(metaData instanceof SetMetaData){
+						Set set = new HashSet(((ArrayData) value).size());
+						SetMetaData setMetaData = (SetMetaData) metaData;
+						final SerializationRuntimeConverter valueConverter = createConverter(
+							elementType,
+							setMetaData.elemMetaData);
+						for (int i = 0; i < ((ArrayData) value).size(); i++) {
+							Object element = ArrayData.get(arrayData, i, elementType);
+							set.add(valueConverter.convert(element));
+						}
+						return set;
+					} else {
+						throw new RuntimeException(metaData.toString());
 					}
-					return arr;
 				};
 			case MAP:
 				return value -> {
@@ -184,6 +208,11 @@ public class ThriftRowDataSerializationSchema implements SerializationSchema<Row
 					final LogicalType[] fieldTypes = rowType.getFields().stream()
 						.map(RowType.RowField::getType)
 						.toArray(LogicalType[]::new);
+
+					// handle nested class
+					if(metaData != null && metaData instanceof StructMetaData) {
+						thriftClass = ((StructMetaData) metaData).structClass;
+					}
 
 					final TFieldIdEnum[] fields =
 						ThriftRowTranslator.getSortedFields(thriftClass, null).stream().map(entry ->{

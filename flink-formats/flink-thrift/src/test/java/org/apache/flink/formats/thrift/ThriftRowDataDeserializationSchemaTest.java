@@ -1,6 +1,11 @@
 package org.apache.flink.formats.thrift;
 
+import com.google.common.collect.Lists;
+
 import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.ArrayData;
+import org.apache.flink.table.data.GenericArrayData;
+import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
@@ -13,6 +18,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class ThriftRowDataDeserializationSchemaTest {
 
@@ -31,6 +39,21 @@ public class ThriftRowDataDeserializationSchemaTest {
 	}
 
 	@Test
+	public void testNestClass() throws Exception {
+		Class<? extends TBase> obj = ThriftRowTranslator.getThriftClass(
+			"org.apache.flink.formats.thrift.Item");
+		Item item  = (Item) ThriftRowTranslator.getReusableInstance(obj);
+		item.details = new HashMap<>();
+		item.details.put("a", Operation.ADD);
+		TableSchema schema = ThriftRowTranslator.getTableSchema(obj);
+		TSerializer tSerializer = new TSerializer();
+		byte[] val = tSerializer.serialize(item);
+		ThriftRowDataDeserializationSchema deserializationSchema =
+			new ThriftRowDataDeserializationSchema(false, item);
+		RowData result = deserializationSchema.deserialize(val);
+	}
+
+	@Test
 	public void testThriftRowDataDeserialize() throws Exception {
 		Class<? extends TBase> obj = ThriftRowTranslator.getThriftClass(
 			"org.apache.flink.formats.thrift.Work");
@@ -44,6 +67,12 @@ public class ThriftRowDataDeserializationSchemaTest {
 		o.num5 = Integer.MAX_VALUE;
 		o.sign1 = true;
 		o.sign2 = 0x1;
+		o.index = new HashMap<>();
+		Item a = new Item();
+		a.details = new HashMap<>();
+		a.details.put("a", Operation.ADD);
+		o.index.put("1", a);
+
 		//TODO: add collection types
 		TableSchema schema = ThriftRowTranslator.getTableSchema(obj);
 		TSerializer tSerializer = new TSerializer();
@@ -55,6 +84,19 @@ public class ThriftRowDataDeserializationSchemaTest {
 		Assert.assertTrue(result.getInt(1) == 1);
 		Assert.assertTrue(result.getInt(2) == 1);
 		Assert.assertTrue(new String(result.getBinary(4)).equals("hi"));
+
+		final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
+		ThriftRowDataSerializationSchema serializationSchema =
+			new ThriftRowDataSerializationSchema(false, ThriftRowTranslator.getThriftClass(
+				"org.apache.flink.formats.thrift.Work"), rowType);
+
+		byte[] payload = serializationSchema.serialize(result);
+		Work serResult = new Work();
+		TDeserializer tDeserializer = new TDeserializer();
+		tDeserializer.deserialize(serResult, payload);
+		
+		// verify nested class can be decode/encode as expected
+		Assert.assertTrue(serResult.index.get("1").getDetails().get("a") == Operation.ADD);
 	}
 
 	@Test
@@ -70,9 +112,7 @@ public class ThriftRowDataDeserializationSchemaTest {
 		r.setField(7, (byte)1);
 		r.setField(8, Short.MAX_VALUE);
 		r.setField(9, Long.MAX_VALUE);
-		r.setField(10, null);
-		r.setField(11, null);
-		r.setField(12, null);
+		r.setField(10, new GenericArrayData(new int[]{2,1}));
 		final TableSchema schema = ThriftRowTranslator.getTableSchema(ThriftRowTranslator.getThriftClass(
 			"org.apache.flink.formats.thrift.Work"));
 		final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
@@ -95,4 +135,6 @@ public class ThriftRowDataDeserializationSchemaTest {
 		Assert.assertTrue(result.num4 == Short.MAX_VALUE);
 		Assert.assertTrue(result.num5 == Long.MAX_VALUE);
 	}
+
+
 }

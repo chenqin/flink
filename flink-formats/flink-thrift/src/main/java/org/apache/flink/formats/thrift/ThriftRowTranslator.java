@@ -6,6 +6,8 @@ import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.data.GenericArrayData;
+import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
@@ -303,7 +305,7 @@ public class ThriftRowTranslator {
 				for (int i = 0; i < items.size(); i++) {
 					transform[i] = getPrimitiveValue(listMetaData.elemMetaData, items.get(i));
 				}
-				return transform;
+				return new GenericArrayData(transform);
 			case TType.SET:
 				SetMetaData setMetaData = (SetMetaData) valueMetaData;
 				Set sets = (Set) val;
@@ -314,7 +316,7 @@ public class ThriftRowTranslator {
 				for (Object ele : sets) {
 					transformSet[j++] = getPrimitiveValue(setMetaData.elemMetaData, ele);
 				}
-				return transformSet;
+				return new GenericArrayData(transformSet);
 			case TType.MAP:
 				MapMetaData mapMetaData = (MapMetaData) valueMetaData;
 				Map maps = (Map) val;
@@ -330,7 +332,7 @@ public class ThriftRowTranslator {
 						e.printStackTrace();
 					}
 				});
-				return transferMap;
+				return new GenericMapData(transferMap);
 			case TType.STRUCT:
 				return getRowData((TBase) val);
 			default:
