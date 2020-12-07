@@ -14,6 +14,7 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.factories.DeserializationFormatFactory;
 import org.apache.flink.table.factories.DynamicTableFactory;
+import org.apache.flink.table.factories.Factory;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
@@ -51,10 +52,18 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 		Class<? extends TBase> thriftClass = ThriftRowTranslator.getThriftClass(thriftClassName);
 		TBase instance = ThriftRowTranslator.getReusableInstance(thriftClass);
 
-		final TableSchema schema = ThriftRowTranslator.getTableSchema(thriftClass);
+		TableSchema schema = null;
+		try {
+			schema = ThriftRowTranslator.getTableSchema(thriftClass);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 
 		Preconditions.checkNotNull(instance);
 		final TBase finalInstance = instance;
+		TableSchema finalSchema = schema;
 		return new DecodingFormat<DeserializationSchema<RowData>>() {
 			@Override
 			public DeserializationSchema<RowData> createRuntimeDecoder(
@@ -63,7 +72,7 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 				// infer table schema from thrift class
 				final TypeInformation<RowData> rowDataTypeInfo =
 					(TypeInformation<RowData>) context.createTypeInformation(
-						schema.toRowDataType());
+						finalSchema.toRowDataType());
 				return new ThriftRowDataDeserializationSchema(skipCorruptedMessage,
 					finalInstance, rowDataTypeInfo);
 			}
@@ -90,16 +99,24 @@ public class ThriftFormatFactory implements DeserializationFormatFactory, Serial
 		String thriftClassName = formatOptions.get(ThriftOptions.ThriftClassName);
 		Class<? extends TBase> thriftClass = ThriftRowTranslator.getThriftClass(thriftClassName);
 
-		final TableSchema schema = ThriftRowTranslator.getTableSchema(thriftClass);
+		TableSchema schema = null;
+		try {
+			schema = ThriftRowTranslator.getTableSchema(thriftClass);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 		Boolean skipCorruptedMessage = formatOptions.get(ThriftOptions.skipCorruptedMessage);
 
+		TableSchema finalSchema = schema;
 		return new EncodingFormat<SerializationSchema<RowData>>() {
 			@Override
 			public SerializationSchema<RowData> createRuntimeEncoder(
 				DynamicTableSink.Context context,
 				DataType consumedDataType) {
 				// inference from thrift class
-				final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
+				final RowType rowType = (RowType) finalSchema.toRowDataType().getLogicalType();
 				return new ThriftRowDataSerializationSchema(skipCorruptedMessage, thriftClass, rowType);
 			}
 

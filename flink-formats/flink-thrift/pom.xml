@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>flink-thrift</artifactId>
-	<name>FLink : Formats : Thrift</name>
+	<name>flink-thrift</name>
 
 	<packaging>jar</packaging>
 

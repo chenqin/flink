@@ -54,16 +54,25 @@ public class ThriftRowDataDeserializationSchemaTest {
 		Assert.assertTrue(result.getInt(0) == 0);
 		Assert.assertTrue(result.getInt(1) == 1);
 		Assert.assertTrue(result.getInt(2) == 1);
-		Assert.assertTrue(result.getString(4).toString().equals("hi"));
+		Assert.assertTrue(new String(result.getBinary(4)).equals("hi"));
 	}
 
 	@Test
 	public void testThriftRowDataSerialize() throws Exception {
-		GenericRowData r = new GenericRowData(4);
+		GenericRowData r = new GenericRowData(13);
 		r.setField(0, 0);
 		r.setField(1, 1);
 		r.setField(2, 1);
 		r.setField(3, StringData.fromString("hi"));
+		r.setField(4, "hi".getBytes());
+		r.setField(5, 0.1);
+		r.setField(6, true);
+		r.setField(7, (byte)1);
+		r.setField(8, Short.MAX_VALUE);
+		r.setField(9, Long.MAX_VALUE);
+		r.setField(10, null);
+		r.setField(11, null);
+		r.setField(12, null);
 		final TableSchema schema = ThriftRowTranslator.getTableSchema(ThriftRowTranslator.getThriftClass(
 			"org.apache.flink.formats.thrift.Work"));
 		final RowType rowType = (RowType) schema.toRowDataType().getLogicalType();
@@ -81,5 +90,9 @@ public class ThriftRowDataDeserializationSchemaTest {
 		Assert.assertTrue(result.num2 == 1);
 		Assert.assertTrue(result.op == Operation.ADD);
 		Assert.assertTrue(result.comment.equals("hi"));
+		Assert.assertTrue(result.sign1 == true);
+		Assert.assertTrue(result.sign2 == 0x1);
+		Assert.assertTrue(result.num4 == Short.MAX_VALUE);
+		Assert.assertTrue(result.num5 == Long.MAX_VALUE);
 	}
 }

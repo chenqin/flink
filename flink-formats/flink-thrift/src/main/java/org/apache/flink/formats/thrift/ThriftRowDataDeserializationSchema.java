@@ -11,19 +11,22 @@ import org.apache.thrift.TException;
 
 import java.io.IOException;
 
+/**
+ * ThriftRowDataDeserializationSchema convert binary to RowData.
+ */
 public class ThriftRowDataDeserializationSchema implements DeserializationSchema<RowData> {
 
-	/** return null if not able to deserialize message **/
-	private Boolean skipCorruptedMessage;
+	/** return null if not able to deserialize message. **/
+	private final Boolean skipCorruptedMessage;
 	/** TypeInformation of the produced {@link RowData}. **/
 	private final TypeInformation<RowData> resultTypeInfo;
 
-	private final transient TBase reuseInstance;
+	final transient TBase reuseInstance;
 	private final TDeserializer deserializer;
 
 	@VisibleForTesting
 	public ThriftRowDataDeserializationSchema(Boolean skipCorruptedMessage,
-											  TBase reuseInstance) {
+		TBase reuseInstance) {
 		this.skipCorruptedMessage = skipCorruptedMessage;
 		this.reuseInstance = reuseInstance;
 		deserializer = new TDeserializer();
@@ -41,9 +44,8 @@ public class ThriftRowDataDeserializationSchema implements DeserializationSchema
 		this.resultTypeInfo = resultTypeInfo;
 		deserializer = new TDeserializer();
 	}
-	/**
-	 * Deserializes the byte message.
-	 *
+
+	/** Deserializes the byte message.
 	 * @param message The message, as a byte array.
 	 * @return The deserialized message as an object (null if the message cannot be deserialized).
 	 */
@@ -51,14 +53,14 @@ public class ThriftRowDataDeserializationSchema implements DeserializationSchema
 	public RowData deserialize(byte[] message) throws IOException {
 		try {
 			deserializer.deserialize(reuseInstance, message);
-		} catch (TException e) {
-			if (skipCorruptedMessage ) {
+			return ThriftRowTranslator.getRowData(reuseInstance);
+		} catch (Exception e) {
+			if (skipCorruptedMessage) {
 				return null;
 			} else {
 				throw new IOException(e.getMessage());
 			}
 		}
-		return ThriftRowTranslator.getRowData(reuseInstance);
 	}
 
 	/**
