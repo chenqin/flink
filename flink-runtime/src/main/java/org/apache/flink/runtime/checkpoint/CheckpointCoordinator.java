@@ -1555,7 +1555,9 @@ public class CheckpointCoordinator {
 	}
 
 	private long getRandomInitDelay() {
-		return ThreadLocalRandom.current().nextLong(minPauseBetweenCheckpoints, baseInterval + 1L);
+		long start = ThreadLocalRandom.current().nextLong(2 * baseInterval + 1L, 3 * baseInterval + 1L);
+		LOG.info("init checkpoint delay {} ms", start);
+		return start;
 	}
 
 	private ScheduledFuture<?> scheduleTriggerWithDelay(long initDelay) {
