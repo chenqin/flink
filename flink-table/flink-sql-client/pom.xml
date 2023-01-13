@@ -51,6 +51,19 @@ under the License.
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- Hive SQL Parser Hive-->
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-sql-parser-hive</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.calcite</groupId>
+					<artifactId>calcite-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<!-- SQL Gateway -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
