@@ -33,6 +33,14 @@ under the License.
 	<packaging>jar</packaging>
 
 	<properties>
+		<calcite.version>1.28.0</calcite.version>
+		<!-- Calcite 1.28.0 depends on 3.1.6
+		 at the same time here it is a list of issues required to be fixed
+		 before movement to 3.1.x
+		 https://github.com/janino-compiler/janino/issues/185
+		 https://github.com/janino-compiler/janino/issues/187
+		 https://github.com/janino-compiler/janino/issues/188
+		 -->
 		<!-- override parent pom -->
 		<test.excludedGroups/>
 	</properties>
@@ -266,7 +274,7 @@ under the License.
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/codegen</outputDirectory>
+							<outputDirectory>target/codegen</outputDirectory>
 							<resources>
 								<resource>
 									<directory>src/main/codegen</directory>
@@ -296,9 +304,9 @@ under the License.
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<cfgFile>${project.build.directory}/codegen/config.fmpp</cfgFile>
+							<cfgFile>target/codegen/config.fmpp</cfgFile>
 							<outputDirectory>target/generated-sources</outputDirectory>
-							<templateDirectory>${project.build.directory}/codegen/templates</templateDirectory>
+							<templateDirectory>target/codegen/templates</templateDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -316,14 +324,14 @@ under the License.
 							<goal>javacc</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${project.build.directory}/generated-sources/</sourceDirectory>
+							<sourceDirectory>target/generated-sources</sourceDirectory>
 							<includes>
 								<include>**/Parser.jj</include>
 							</includes>
 							<!-- This must be kept synced with Apache Calcite. -->
 							<lookAhead>1</lookAhead>
 							<isStatic>false</isStatic>
-							<outputDirectory>${project.build.directory}/generated-sources/</outputDirectory>
+							<outputDirectory>target/generated-sources</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
